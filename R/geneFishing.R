@@ -1,3 +1,4 @@
+#' 
 #' geneFishing
 #' 
 #' Function to perform gene fishing on a gene expression matrix. 
@@ -18,6 +19,9 @@
 #' @return A data.frame with the capture frequency rate for all genes
 #' 
 #' @examples
+#' 
+#' @import foreach
+#' @import doParallel
 #' 
 
 geneFishing <- function(bait_genes, exp_mat, alpha = 5, fishing_rounds = 1000, 
@@ -68,7 +72,7 @@ geneFishing <- function(bait_genes, exp_mat, alpha = 5, fishing_rounds = 1000,
     coordinates <- rs[['coordinates']]
     
     # do k-means on the coordinates from the spectral clustering
-    kmeans_obj <- kmeanspp(data = coordinates, k = k)
+    kmeans_obj <- LICORS::kmeanspp(data = coordinates, k = k)
     
     # extract clusters
     cluster_vec <- kmeans_obj$cluster
