@@ -6,7 +6,7 @@
 #' @param exp_mat matrix of gene expression where the rows are genes and the 
 #' columns are samples (cells or individuals). 
 #' @param bait_genes genes to use as bait to fish out similar genes from the 
-#' \code{exp_mat}.  
+#' \code{exp_mat}.  These genes should be a subset of the rownames of \code{exp_mat}. 
 #' @param alpha controls number of random genes that are sampled in each round 
 #' of fishing.  It will sample \code{alpha} times the number of genes in 
 #' \code{bait_genes}.  The default is 5.  The stronger the bait separates from 
@@ -24,7 +24,7 @@
 #' @import doParallel
 #' 
 
-geneFishing <- function(bait_genes, exp_mat, alpha = 5, fishing_rounds = 1000, 
+geneFishing <- function(exp_mat, bait_genes, alpha = 5, fishing_rounds = 1000, 
                         k = 2){
   # make sure bait genes are in expression matrix 
   bait_genes <- bait_genes[bait_genes %in% rownames(exp_mat)] %>% 

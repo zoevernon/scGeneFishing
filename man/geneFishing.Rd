@@ -4,14 +4,14 @@
 \alias{geneFishing}
 \title{geneFishing}
 \usage{
-geneFishing(bait_genes, exp_mat, alpha = 5, fishing_rounds = 1000, k = 2)
+geneFishing(exp_mat, bait_genes, alpha = 5, fishing_rounds = 1000, k = 2)
 }
 \arguments{
-\item{bait_genes}{genes to use as bait to fish out similar genes from the
-\code{exp_mat}.}
-
 \item{exp_mat}{matrix of gene expression where the rows are genes and the
 columns are samples (cells or individuals).}
+
+\item{bait_genes}{genes to use as bait to fish out similar genes from the
+\code{exp_mat}.  These genes should be a subset of the rownames of \code{exp_mat}.}
 
 \item{alpha}{controls number of random genes that are sampled in each round
 of fishing.  It will sample \code{alpha} times the number of genes in
