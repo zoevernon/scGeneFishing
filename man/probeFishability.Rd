@@ -10,7 +10,8 @@ probeFishability(
   n_rounds = 100,
   alpha = 5,
   min_tightness = 0.5,
-  min_genes = 5
+  min_genes = 5,
+  ncores = 2
 )
 }
 \arguments{
@@ -37,6 +38,11 @@ of genes.}
 \item{potential_bait_genes}{set of genes for which to check if there is a
 subset that can be used as bait.  These genes should be a subset of the
 rownames of \code{exp_mat}.}
+
+\item{parallel}{indicator of whether the computation should be done in parallel.
+The default is FALSE.}
+
+\item{ncore}{number of cores to do parallel computation on if parallel = TRUE.}
 }
 \value{
 List with the following components:
@@ -44,8 +50,10 @@ List with the following components:
 \item \code{best_bait} - tightest set of genes found.
 \item \code{bait_sets} - list with all tight sets of genes and the corresponding
 tightness metric.
-\item \code{bait_info_df} - data.frame with the number and tightness metric
-of each of the discovered bait sets.
+\item \code{bait_info} - data.frame with the number and tightness metric
+of each of the discovered bait sets. The \code{bait_index} column corresponds
+to the slot in the \code{bait_sets} list (e.g. \code{bait_index} = 1 has
+the metadata for \code{bait_sets[[1]]})
 }
 }
 \description{

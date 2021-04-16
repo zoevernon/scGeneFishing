@@ -4,7 +4,14 @@
 \alias{geneFishing}
 \title{geneFishing}
 \usage{
-geneFishing(exp_mat, bait_genes, alpha = 5, fishing_rounds = 1000, k = 2)
+geneFishing(
+  exp_mat,
+  bait_genes,
+  alpha = 5,
+  fishing_rounds = 1000,
+  k = 2,
+  ncores = 2
+)
 }
 \arguments{
 \item{exp_mat}{matrix of gene expression where the rows are genes and the
@@ -23,6 +30,11 @@ samples of random genes the larger \code{alpha} the algorithm can handle.}
 \item{k}{number of clusters to use in geneFishing.  The default is 2, however
 if you fished out too many genes with \code{k = 2} it can help to increase to
 \code{k = 3}.}
+
+\item{parallel}{indicator of whether the computation should be done in parallel.
+The default is FALSE.}
+
+\item{ncore}{number of cores to do parallel computation on if parallel = TRUE.}
 }
 \value{
 A data.frame with the capture frequency rate for all genes

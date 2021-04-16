@@ -15,17 +15,23 @@
 #' @param k number of clusters to use in geneFishing.  The default is 2, however
 #' if you fished out too many genes with \code{k = 2} it can help to increase to 
 #' \code{k = 3}. 
+#' @param parallel indicator of whether the computation should be done in parallel.
+#' The default is FALSE.  
+#' @param ncore number of cores to do parallel computation on if parallel = TRUE.
 #' 
 #' @return A data.frame with the capture frequency rate for all genes
 #' 
 #' @examples
 #' 
 #' @import foreach
-#' @import doParallel
-#' 
+#' @import dplyr
+#' @export
 
 geneFishing <- function(exp_mat, bait_genes, alpha = 5, fishing_rounds = 1000, 
-                        k = 2){
+                        k = 2, ncores = 2){
+  
+  doParallel::registerDoParallel(ncores)
+  
   # make sure bait genes are in expression matrix 
   bait_genes <- bait_genes[bait_genes %in% rownames(exp_mat)] %>% 
     as.character()
@@ -55,6 +61,7 @@ geneFishing <- function(exp_mat, bait_genes, alpha = 5, fishing_rounds = 1000,
     l[[length(l)-1]] <- d
     l <- l[1:(length(l) - 1)]
   }
+  
   # flatten the list, so that we just have one long list
   sub_pool_list <- unlist(tmp, recursive = FALSE)
   
@@ -128,5 +135,40 @@ geneFishing <- function(exp_mat, bait_genes, alpha = 5, fishing_rounds = 1000,
                                'CFR', 
                                'p_value', 
                                'adj_p_value')
-  return(fish_freq_df)
+  
+  # CHANGE TO YUTINGS thing
+  cutoff <- 0.99
+  
+  # get list to return as gene_fishing class 
+  final_output <- list(
+    results = fish_freq_df, 
+    fished_genes = fish_freq_df$gene_id[fish_freq_df$CFR > cutoff],
+    CFR_cutoff = cutoff, 
+    bait = bait_genes, 
+    exp_mat = exp_mat
+  )
+  class(final_output) <- "gene_fishing"
+  
+  return(final_output)
 }
+
+#' @export
+print.gene_fishing <- function(x, ...){
+  cat(paste("Fished out", length(x$fished_genes),
+            "with a CFR cutoff of", x$CFR_cutoff, "\n\n"))
+  cat("$bait\n")
+  cat(sort(x$bait), "\n\n")
+  cat(paste("$results\n"))
+  print.data.frame(head(fishing$results, 10))
+}
+
+#' @export
+plot.gene_fishing<- function(x, ...){
+  
+  p <- ggplot(x$results) + 
+    geom_histogram(aes(CFR), color = "grey", size = 0.1, bins = 50) + 
+    theme_bw() 
+  
+  return(p)
+}
+

@@ -11,7 +11,7 @@ spectralClustering <- function(cor_mat, k){
   coordinates <- rs[['coordinates']]
   
   # do clustering 
-  kmeans_obj <-  kmeanspp(data = coordinates, k = k)
+  kmeans_obj <-  LICORS::kmeanspp(data = coordinates, k = k)
   
   # merge coordinates with clustering 
   coordinates <- coordinates %>% 

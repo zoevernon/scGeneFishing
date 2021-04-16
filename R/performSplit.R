@@ -7,9 +7,7 @@
 performSplit <- function(potential_bait, exp_mat, n_rounds, round, alpha) {
   cor_mat <- cor(t(exp_mat[potential_bait, ]), method = "spearman")
   # cluster the potential bait
-  num_clust <- ifelse(round == 1, 
-                      chooseBaitClustNum(cor_mat, potential_bait)$cluster_number, 
-                      2)
+  num_clust <- 2
   
   # get the eigen_space for correct number of clusters
   eigen_space <- spectralClustering(

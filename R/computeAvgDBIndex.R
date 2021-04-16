@@ -37,7 +37,7 @@ computeAvgDBIndex <- function(bait_genes, exp_mat, k = 2, alpha = 5,
       
       avg_bait_dist <- Rfast::Dist(coordinates[bait_genes, ]) %>%
         as.matrix() %>%
-        upperTriangle() %>%
+        gdata::upperTriangle() %>%
         median()
       
       # compute index
