@@ -11,6 +11,8 @@ probeFishability(
   alpha = 5,
   min_tightness = 0.5,
   min_genes = 5,
+  n_neighbors = 15,
+  umap = TRUE,
   ncores = 2
 )
 }
@@ -35,14 +37,15 @@ of genes.}
 \item{min_genes}{minimum size that the bait set can be.  The default is set to
 5.}
 
+\item{umap}{indicator of whether to do UMAP on spectral coordinates for
+clustering.  Default is TRUE, which is recommended for single cell data, despite
+a reduction in speed.}
+
+\item{ncores}{number of cores to do parallel computation on if parallel = TRUE.}
+
 \item{potential_bait_genes}{set of genes for which to check if there is a
 subset that can be used as bait.  These genes should be a subset of the
 rownames of \code{exp_mat}.}
-
-\item{parallel}{indicator of whether the computation should be done in parallel.
-The default is FALSE.}
-
-\item{ncore}{number of cores to do parallel computation on if parallel = TRUE.}
 }
 \value{
 List with the following components:
