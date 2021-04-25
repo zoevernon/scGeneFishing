@@ -1,10 +1,10 @@
 #' 
-#' performSplit
+#' performSplitSpectral
 #' 
 #' Internal function for probing fishability of a set of genes to split up 
 #' potential bait set by doing clustering with k = 2.
 #' 
-performSplit <- function(potential_bait, exp_mat, n_rounds, round, alpha) {
+performSplitSpectral <- function(potential_bait, exp_mat, n_rounds, round, alpha) {
   cor_mat <- cor(t(exp_mat[potential_bait, ]), method = "spearman")
   # cluster the potential bait
   num_clust <- 2
@@ -25,8 +25,8 @@ performSplit <- function(potential_bait, exp_mat, n_rounds, round, alpha) {
   
   # compute DB index for each cluster
   db_index <- sapply(1:length(genes_in_clust), function(k){
-    computeAvgDBIndex(genes_in_clust[[k]], exp_mat, n_rounds = n_rounds, 
-                      alpha = alpha) %>%
+    computeAvgDBIndexSpectral(genes_in_clust[[k]], exp_mat, n_rounds = n_rounds, 
+                              alpha = alpha) %>%
       mean()
   })    
   

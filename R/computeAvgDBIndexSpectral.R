@@ -1,11 +1,11 @@
 #' 
-#' computeAvgDBIndex
+#' computeAvgDBIndexSpectral
 #' 
 #' Internal function to compute tightness of gene set when probing for fishability
 #' 
 
-computeAvgDBIndex <- function(bait_genes, exp_mat, k = 2, alpha = 5, 
-                              n_rounds = 50){
+computeAvgDBIndexSpectral <- function(bait_genes, exp_mat, k = 2, alpha = 5, 
+                                      n_rounds = 50){
   # make sure the bait genes are represented 
   bait_genes <- bait_genes[bait_genes %in% rownames(exp_mat)] %>%
     as.character()
@@ -42,7 +42,8 @@ computeAvgDBIndex <- function(bait_genes, exp_mat, k = 2, alpha = 5,
       
       # compute index
       avg_bait_dist / (Rfast::Dist(centroids, vector = TRUE) %>% as.numeric())
-    } 
+    }
+  
   
   return(bait_tightness)
 }
