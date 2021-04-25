@@ -45,6 +45,7 @@ getUMAPCoordinates <- function(A, n_eigen_vectors = 0, n_neighbors = 15){
                eigen_values = eigen_values,
                n_eigen_vectors = k)
   }
-  
-  return(umap(rs[['coordinates']], n_neighbors = n_neighbors)$layout)
+  umap_coord <- umap::umap(rs[['coordinates']],
+                           n_neighbors = n_neighbors)$layout
+  return(umap_coord)
 }

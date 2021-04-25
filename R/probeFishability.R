@@ -42,7 +42,6 @@
 #' 
 #' @import foreach
 #' @import ggplot2
-#' @import umap
 #' @export
 
 probeFishability <- function(exp_mat, potential_bait, n_rounds = 100, alpha = 5,
@@ -111,7 +110,7 @@ plot.gene_fishing_probe_spectral <- function(x, n_random = 50, ...){
                              c(rand_genes, bait)]
       
       # see if any columns have zero variance 
-      cols <- which(is.na(colSds(cor_mat_tmp, na.rm = TRUE)))
+      cols <- which(is.na(matrixStats::colSds(cor_mat_tmp, na.rm = TRUE)))
       if(length(cols) > 0){
         cor_mat_tmp <- cor_mat_tmp[-cols, -cols]
       }
@@ -179,7 +178,7 @@ plot.gene_fishing_probe_umap <- function(x, n_random = 50, ...){
                              c(rand_genes, bait)]
       
       # see if any columns have zero variance 
-      cols <- which(is.na(colSds(cor_mat_tmp, na.rm = TRUE)))
+      cols <- which(is.na(matrixStats::colSds(cor_mat_tmp, na.rm = TRUE)))
       if(length(cols) > 0){
         cor_mat_tmp <- cor_mat_tmp[-cols, -cols]
       }

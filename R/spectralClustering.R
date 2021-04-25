@@ -14,12 +14,14 @@ spectralClustering <- function(cor_mat, k){
   kmeans_obj <-  LICORS::kmeanspp(data = coordinates, k = k)
   
   # merge coordinates with clustering 
-  coordinates <- coordinates %>% 
-    data.frame %>%
-    rownames_to_column(var = "gene") %>%
+  coordinates <- coordinates %>% data.frame 
+  coordinates$gene <- rownames(coordinates)
+  rownames(coordinates) <- NULL
+  coordinates <- coordinates %>%
     merge(data.frame(gene = names(kmeans_obj$cluster), 
                      cluster = kmeans_obj$cluster, row.names = NULL), 
           by = "gene")
+    
   
   
   # return kmeans object and coordinates

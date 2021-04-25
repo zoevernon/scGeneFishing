@@ -159,7 +159,7 @@ print.gene_fishing <- function(x, ...){
   cat("$bait\n")
   cat(sort(x$bait), "\n\n")
   cat(paste("$results\n"))
-  print.data.frame(head(fishing$results, 10))
+  print.data.frame(head(x$results, 10))
 }
 
 #' @export

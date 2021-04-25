@@ -16,4 +16,52 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(GeneFishing)
+data("pancreas")
+data("insulin_secretion")
+
+# log of count matrix
+head(pancreas[, 1:3])
+
+# GO term 
+insulin_secretion[1:6]
 ```
+
+
+
+## Probe for bait sets 
+Search through ```insulin_secretion``` to find a subset of genes that can be used
+as bait in GeneFishing. 
+```{r probe_fishability}
+go_subset <- intersect(rownames(pancreas), insulin_secretion)
+baits <- probeFishability(pancreas, go_subset, umap = FALSE, n_rounds = 50)
+baits
+```
+
+Will randomly sample genes and plot discovered bait with those randomly sampled
+genes.  This shows two different random samples
+```{r plot_probe_results1, fig.width=7, fig.height=4}
+plot(baits)
+```
+
+
+```{r plot_probe_results2, fig.width=7, fig.height=4}
+plot(baits)
+```
+
+
+## Do GeneFishing
+Need to update this function to take directly in the ```baits``` object and 
+where it will check if the supplied bait can actually be used before trying to 
+do GeneFishing (as described in README). 
+```{r gene_fishing}
+fishing_results <- geneFishing(pancreas,
+                               baits$best_bait, 
+                               fishing_rounds = 100)
+fishing_results
+```
+
+Plot of capture frequency rate (CFR)
+```{r plot_gene_fishing, fig.width=7, fig.height=4}
+plot(fishing_results)
+```
+
