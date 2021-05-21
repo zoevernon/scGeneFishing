@@ -20,7 +20,7 @@ data("pancreas")
 data("insulin_secretion")
 
 # log of count matrix
-head(pancreas[, 1:3])
+head(pancreas[, 1:4])
 
 # GO term 
 insulin_secretion[1:6]
@@ -32,8 +32,10 @@ insulin_secretion[1:6]
 Search through ```insulin_secretion``` to find a subset of genes that can be used
 as bait in GeneFishing. 
 ```{r probe_fishability}
+set.seed(3908)
 go_subset <- intersect(rownames(pancreas), insulin_secretion)
-baits <- probeFishability(pancreas, go_subset, umap = FALSE, n_rounds = 50)
+baits <- probeFishability(pancreas, go_subset, umap = FALSE, n_rounds = 50,
+                          min_genes = 10)
 baits
 ```
 
@@ -52,11 +54,15 @@ plot(baits)
 ## Do GeneFishing
 Need to update this function to take directly in the ```baits``` object and 
 where it will check if the supplied bait can actually be used before trying to 
-do GeneFishing (as described in README). 
+do GeneFishing (as described in README).  Note, in practice one should do more than
+100 rounds of GeneFishing, however to make the vignette compute in a reasonable
+amount of time we are only using 100 here.  
+
 ```{r gene_fishing}
 fishing_results <- geneFishing(pancreas,
-                               baits$best_bait, 
-                               fishing_rounds = 100)
+                               baits$best_bait,
+                               fishing_rounds = 50,
+                               umap = FALSE)
 fishing_results
 ```
 
@@ -65,3 +71,18 @@ Plot of capture frequency rate (CFR)
 plot(fishing_results)
 ```
 
+For a bait set with this tightness, one might consider using three clusters in GeneFishing
+to get a more accurate set of fished out genes
+```{r gf_three_clusters, fig.width=7, fig.height=4}
+fishing_results_k3 <- geneFishing(pancreas,
+                                  baits$best_bait,
+                                  fishing_rounds = 50,
+                                  k = 3,
+                                  umap = FALSE)
+fishing_results_k3
+```
+
+
+```{r plot_gf_three_clusters, fig.width=7, fig.height=4}
+plot(fishing_results_k3)
+```

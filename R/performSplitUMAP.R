@@ -7,15 +7,23 @@
 performSplitUMAP <- function(potential_bait, exp_mat, n_rounds, round, alpha,
                              n_neighbors) {
   cor_mat <- cor(t(exp_mat[potential_bait, ]), method = "spearman")
+  
   # cluster the potential bait
   num_clust <- 2
   
   # get the eigen_space for correct number of clusters
-  eigen_space <- UMAPClustering(
-    cor_mat, 
-    k = num_clust,
-    n_neighbors = n_neighbors
-  )$coordinates
+  if(nrow(cor_mat) > 15){
+    eigen_space <- UMAPClustering(
+      cor_mat, 
+      k = num_clust,
+      n_neighbors = n_neighbors
+    )$coordinates
+  }else{
+    eigen_space <- spectralClustering(
+      cor_mat, 
+      k = num_clust
+    )$coordinates
+  }
   
   # make a list of genes in each cluster 
   genes_in_clust <- lapply(1:num_clust, function(k){

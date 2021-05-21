@@ -53,18 +53,18 @@ probeFishabilityUMAP <- function(exp_mat, potential_bait, n_rounds, alpha,
     cnt2 <- 1
     for(i in seq(length(potential_bait_list))) {
       # split each element 
-      n_neighbors_tmp <- ifelse(
-        n_neighbors > round(length(potential_bait_temp) / 1.5), 
-        round(length(potential_bait_temp) / 1.5),
-        n_neighbors)
-      n_neighbors_tmp <- ifelse(n_neighbors_tmp < 2, 2, n_neighbors_tmp)
+      # n_neighbors_tmp <- ifelse(
+      #   n_neighbors > round(length(potential_bait_temp) / 1.5), 
+      #   round(length(potential_bait_temp) / 1.5),
+      #   n_neighbors)
+      # n_neighbors_tmp <- ifelse(n_neighbors_tmp < 2, 2, n_neighbors_tmp)
       
       split_data <- performSplitUMAP(potential_bait_list[[i]], 
                                      exp_mat, 
                                      n_rounds = n_rounds, 
                                      round = round, 
-                                     alpha = alpha,
-                                     n_neighbors = n_neighbors_tmp)
+                                     alpha = alpha, 
+                                     n_neighbors = n_neighbors)
       
       # check if any of these splits result in a DB index of less than the 
       # cutoff

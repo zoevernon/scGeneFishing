@@ -5,7 +5,7 @@
 \alias{pancreas}
 \title{scRNA seq matrix of pancreas cells}
 \format{
-An object of class \code{matrix} (inherits from \code{array}) with 5220 rows and 849 columns.
+An object of class \code{matrix} (inherits from \code{array}) with 1092 rows and 849 columns.
 }
 \source{
 \href{https://tabula-muris.ds.czbiohub.org/}{Tabula Muris database}

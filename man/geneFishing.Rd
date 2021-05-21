@@ -10,6 +10,9 @@ geneFishing(
   alpha = 5,
   fishing_rounds = 1000,
   k = 2,
+  min_tightness = 0.5,
+  n_rounds = 100,
+  umap = TRUE,
   ncores = 2
 )
 }
@@ -31,10 +34,20 @@ samples of random genes the larger \code{alpha} the algorithm can handle.}
 if you fished out too many genes with \code{k = 2} it can help to increase to
 \code{k = 3}.}
 
-\item{parallel}{indicator of whether the computation should be done in parallel.
-The default is FALSE.}
+\item{min_tightness}{parameter that controls how tight the set of genes needs
+to be to be considered as bait.  Tightness is measured computing the ratio of
+the median distance between all potential bait genes to the distance between the
+medoid of the potential bait genes and a set of randomly sampled genes. The
+average of these tightness measures are taken over \code{n_rounds} random samples
+of genes.}
 
-\item{ncore}{number of cores to do parallel computation on if parallel = TRUE.}
+\item{n_rounds}{number of random samples to be used in assessing fishability
+of a set of genes.  The default is 100.  .}
+
+\item{umap}{indicator of whether the computation should be done using UMAP.
+The default is TRUE.  When umap = FALSE it will use spectral coordinates.}
+
+\item{ncores}{number of cores to do parallel computation on if parallel = TRUE.}
 }
 \value{
 A data.frame with the capture frequency rate for all genes

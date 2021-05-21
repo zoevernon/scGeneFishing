@@ -39,10 +39,9 @@ computeAvgDBIndexUMAP <- function(bait_genes, exp_mat, k = 2, alpha = 5,
         median()
       
       # compute index
-      avg_bait_dist / (Rfast::Dist(centroids, vector = TRUE) %>% as.numeric())
+      avg_bait_dist / 
+        sqrt((Rfast::Dist(centroids, vector = TRUE) %>% as.numeric()))
     } 
-  
-  
   
   return(bait_tightness)
 }
