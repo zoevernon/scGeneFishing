@@ -26,6 +26,7 @@
 #' @param umap indicator of whether the computation should be done using UMAP.
 #' The default is TRUE.  When umap = FALSE it will use spectral coordinates. 
 #' @param ncores number of cores to do parallel computation on if parallel = TRUE.
+#' @param min_bait_genes minimum number of genes for bait set to be viable. 
 #' 
 #' @return A data.frame with the capture frequency rate for all genes
 #' 
@@ -37,13 +38,29 @@
 
 geneFishing <- function(exp_mat, bait_genes, alpha = 5, fishing_rounds = 1000, 
                         k = 2, min_tightness = 0.5, n_rounds = 100, umap = TRUE,
-                        ncores = 2){
+                        ncores = 2, min_bait_genes = 5){
   
   doParallel::registerDoParallel(ncores)
   
   # make sure bait genes are in expression matrix 
+  bait_genes_orig <- bait_genes
   bait_genes <- bait_genes[bait_genes %in% rownames(exp_mat)] %>% 
     as.character()
+  
+  # make sure there are at least min_bait_genes in bait
+  assertthat::assert_that(
+    length(bait_genes) >= min_bait_genes, 
+    msg = paste0("The interesection of bait_genes and row names of ",
+                 "expression matrix is less than ", min_bait_genes, 
+                 "\nConsider lowering min_bait_genes or using different bait."))
+  
+  # return a warning that some genes were removed as they are not in the row-
+  # names of the expression matrix
+  if(length(bait_genes) < length(bait_genes_orig)) {
+    warning(paste0("Inputted bait had ", length(bait_genes_orig),
+                   " genes, only ", length(bait_genes), 
+                   " are in the row names of the inputted expression matrix."))
+  }
   
   # extract names of all genes other than bait
   all_genes <- rownames(exp_mat)
@@ -62,7 +79,7 @@ geneFishing <- function(exp_mat, bait_genes, alpha = 5, fishing_rounds = 1000,
   
   # check that the bait is tight enough
   assertthat::assert_that(db_index < min_tightness, msg = paste(
-    "Inputted bait is less than min_tightness,", 
+    "Inputted bait is", round(db_index, 2), "which is less than min_tightness,", 
     "consider using probeFishability().", 
     "\nYou can also increase min_tightness, and use the same bait."))
     

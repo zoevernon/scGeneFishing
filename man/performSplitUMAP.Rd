@@ -4,7 +4,15 @@
 \alias{performSplitUMAP}
 \title{performSplitUMAP}
 \usage{
-performSplitUMAP(potential_bait, exp_mat, n_rounds, round, alpha, n_neighbors)
+performSplitUMAP(
+  potential_bait,
+  exp_mat,
+  n_rounds,
+  round,
+  alpha,
+  n_neighbors,
+  min_genes
+)
 }
 \description{
 Internal function for probing fishability of a set of genes to split up

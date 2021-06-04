@@ -64,7 +64,8 @@ probeFishabilityUMAP <- function(exp_mat, potential_bait, n_rounds, alpha,
                                      n_rounds = n_rounds, 
                                      round = round, 
                                      alpha = alpha, 
-                                     n_neighbors = n_neighbors)
+                                     n_neighbors = n_neighbors,
+                                     min_genes = min_genes)
       
       # check if any of these splits result in a DB index of less than the 
       # cutoff

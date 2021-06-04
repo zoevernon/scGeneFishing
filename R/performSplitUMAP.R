@@ -5,7 +5,7 @@
 #' potential bait set by doing clustering with k = 2.
 #' 
 performSplitUMAP <- function(potential_bait, exp_mat, n_rounds, round, alpha,
-                             n_neighbors) {
+                             n_neighbors, min_genes) {
   cor_mat <- cor(t(exp_mat[potential_bait, ]), method = "spearman")
   
   # cluster the potential bait
@@ -30,20 +30,26 @@ performSplitUMAP <- function(potential_bait, exp_mat, n_rounds, round, alpha,
     eigen_space$gene[eigen_space$cluster == k]
   })
   
-  # check if any of the clusters only have one gene and remove
-  genes_in_clust <- genes_in_clust[sapply(genes_in_clust, length) > 1]
+  # check if any of the clusters have less than the minimum number of genes 
+  # and remove
+  genes_in_clust <- genes_in_clust[sapply(genes_in_clust, length) >= min_genes]
   
   # compute DB index for each cluster
-  db_index <- sapply(1:length(genes_in_clust), function(k){
-    computeAvgDBIndexUMAP(genes_in_clust[[k]], exp_mat, n_rounds = n_rounds, 
-                          alpha = alpha, n_neighbors = n_neighbors) %>%
-      mean()
-  })    
-  
-  # return data.frame that has the DB index, cluster and genes in cluster 
-  db_index_vec <- sapply(eigen_space$cluster, function(i){
-    db_index[i]
-  })
+  if(length(genes_in_clust) == 0){
+    db_index_vec <- rep(NA, nrow(eigen_space))
+  }else{
+    db_index <- sapply(1:length(genes_in_clust), function(k){
+      computeAvgDBIndexUMAP(genes_in_clust[[k]], exp_mat, n_rounds = n_rounds, 
+                            alpha = alpha, n_neighbors = n_neighbors) %>%
+        mean()
+    })    
+    
+    # return data.frame that has the DB index, cluster and genes in cluster 
+    db_index_vec <- sapply(eigen_space$cluster, function(i){
+      db_index[i]
+    })
+  }
+
   
   return(cbind(eigen_space, db_index_vec))
 }

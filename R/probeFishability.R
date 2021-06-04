@@ -49,6 +49,30 @@ probeFishability <- function(exp_mat, potential_bait, n_rounds = 100, alpha = 5,
                              umap = TRUE, ncores = 2){
   doParallel::registerDoParallel(ncores)
   
+  # check what genes overlap with rownames of expression matrix
+  potential_bait_orig <- unique(potential_bait)
+  potential_bait <- intersect(rownames(exp_mat), potential_bait)
+  
+  # make sure there are some genes in the potential bait
+  assertthat::assert_that(
+    length(potential_bait) > 0, 
+    msg = "No intersection of potential_bait and row names of expression matrix")
+  
+  # make sure there are at least min_genes in potential bait
+  assertthat::assert_that(
+    length(potential_bait) >= min_genes, 
+    msg = paste0("The interesection of potential_bait and row names of ",
+                 "expression matrix is less than min_genes.", 
+                 "\nConsider lower min_genes or using new potential bait."))
+  
+  # return a warning that some genes were removed as they are not in the row-
+  # names of the expression matrix
+  if(length(potential_bait) < length(potential_bait_orig)) {
+    warning(paste0("Inputted potential bait had ", length(potential_bait_orig),
+                   " genes, only ", length(potential_bait), 
+                   " are in the row names of the inputted expression matrix."))
+  }
+    
   if(umap){
     results <- probeFishabilityUMAP(exp_mat, 
                                     potential_bait,
