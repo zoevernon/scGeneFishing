@@ -5,7 +5,7 @@
 \title{probeFishability}
 \usage{
 probeFishability(
-  exp_mat,
+  X,
   potential_bait,
   n_rounds = 100,
   alpha = 5,
@@ -17,9 +17,6 @@ probeFishability(
 )
 }
 \arguments{
-\item{exp_mat}{matrix of gene expression where the rows are genes and the
-columns are samples (cells or individuals).}
-
 \item{n_rounds}{number of random samples to be used in assessing fishability
 of a set of genes.  The default is 100.}
 
@@ -42,6 +39,9 @@ clustering.  Default is TRUE, which is recommended for single cell data, despite
 a reduction in speed.}
 
 \item{ncores}{number of cores to do parallel computation on if parallel = TRUE.}
+
+\item{exp_mat}{matrix of gene expression where the rows are genes and the
+columns are samples (cells or individuals).}
 
 \item{potential_bait_genes}{set of genes for which to check if there is a
 subset that can be used as bait.  These genes should be a subset of the

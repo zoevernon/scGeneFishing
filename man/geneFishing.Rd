@@ -5,7 +5,7 @@
 \title{geneFishing}
 \usage{
 geneFishing(
-  exp_mat,
+  X,
   bait_genes,
   alpha = 5,
   fishing_rounds = 1000,
@@ -13,13 +13,11 @@ geneFishing(
   min_tightness = 0.5,
   n_rounds = 100,
   umap = TRUE,
-  ncores = 2
+  ncores = 2,
+  min_bait_genes = 5
 )
 }
 \arguments{
-\item{exp_mat}{matrix of gene expression where the rows are genes and the
-columns are samples (cells or individuals).}
-
 \item{bait_genes}{genes to use as bait to fish out similar genes from the
 \code{exp_mat}.  These genes should be a subset of the rownames of \code{exp_mat}.}
 
@@ -48,6 +46,11 @@ of a set of genes.  The default is 100.  .}
 The default is TRUE.  When umap = FALSE it will use spectral coordinates.}
 
 \item{ncores}{number of cores to do parallel computation on if parallel = TRUE.}
+
+\item{min_bait_genes}{minimum number of genes for bait set to be viable.}
+
+\item{exp_mat}{matrix of gene expression where the rows are genes and the
+columns are samples (cells or individuals).}
 }
 \value{
 A data.frame with the capture frequency rate for all genes
