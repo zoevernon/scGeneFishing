@@ -135,8 +135,9 @@ sce_probeFishabilitySpectral <- function(exp_mat, potential_bait, n_rounds, alph
     # fix bait ID (bait now in order from tightest to least tight)
     bait_df$bait_index <- 1:nrow(bait_df)
   }else{
-    best_final <- NULL
+    bait_final <- list(NULL)
     bait_df <- NULL
+    warning("No bait discovered.")
   }
   
   # save output as a class to be used for plotting etc. 
@@ -263,8 +264,9 @@ mat_probeFishabilitySpectral <- function(exp_mat, potential_bait, n_rounds, alph
     # fix bait ID (bait now in order from tightest to least tight)
     bait_df$bait_index <- 1:nrow(bait_df)
   }else{
-    best_final <- NULL
+    bait_final <- list(NULL)
     bait_df <- NULL
+    warning("No bait discovered.")
   }
   
   # save output as a class to be used for plotting etc. 
