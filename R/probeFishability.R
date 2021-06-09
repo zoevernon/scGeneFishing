@@ -148,31 +148,39 @@ print.gene_fishing_probe_spectral <- function(x, ...){
   if(length(x$best_bait) > 5){
     cat(paste(length(x$best_bait), "in tightest bait set:\n"))
     cat(sort(x$best_bait)[1:5], ", ...\n\n")
-    cat(paste("Found", nrow(x$bait_info) - 1, "additional bait sets"))
+    cat(paste("Found", nrow(x$bait_info) - 1, "additional bait sets.\n"))
   }else if(length(x$best_bait) == 0){
     cat("No bait found, try again with higher min_tightness.\n")
-    cat("Note, it is not recommended to use min_tightness > 0.5.")
+    cat("Note, it is not recommended to use min_tightness > 0.5.\n")
   }else{
     cat("Tightest bait set:\n")
-    cat(sort(x$best_bait), ", ...\n\n")
-    cat(paste("Found", nrow(x$bait_info) - 1, "additional bait sets"))
+    cat(sort(x$best_bait), "\n\n")
+    cat(paste("Found", nrow(x$bait_info) - 1, "additional bait sets.\n"))
   }
   
 }
 
 #' @export
-plot.gene_fishing_probe_spectral <- function(x, n_random = 50, ...){
+plot.gene_fishing_probe_spectral <- function(x, alpha = 5, 
+                                             bait_indices = "all", ...){
   if(length(x$best_bait) == 0){
     cat("No bait found, try again with higher min_tightness.\n")
-    cat("Note, it is not recommended to use min_tightness > 0.5.")
+    cat("Note, it is not recommended to use min_tightness > 0.5.\n")
   }else{
+    if(any(bait_indices == "all")){
+      bait_indices <- 1:length(x$bait_sets)
+    }
+    
     all_bait <- sapply(1:nrow(x$bait_info), 
                        function(i) x$bait_sets[[i]]) %>% unlist()
     bait_df <- x$bait_info
     
-    # look at plots 
+    # look at plots (will plot the number of random genes corresponding to 
+    # alpha * number of genes in tightest bait)
+    n_random <- alpha * length(x$bait_sets[[min(bait_indices)]])
     rand_genes <- sample(setdiff(rownames(x$X), all_bait), n_random)
     genes <- c(rand_genes, all_bait)
+    
     if(is.matrix(x$X)){
       cor_mat <- cor(t(x$X[genes, ]), method = "spearman")
     } else if(class(x$X) == "SingleCellExperiment"){
@@ -182,7 +190,7 @@ plot.gene_fishing_probe_spectral <- function(x, n_random = 50, ...){
       cor_mat <- cor(t(x$X[genes, ]) %>% as.matrix(), method = "spearman")
     }
     
-    eigen_df <- foreach(i = 1:nrow(bait_df), .combine = "rbind") %do% {
+    eigen_df <- foreach(i = bait_indices, .combine = "rbind") %do% {
       bait <- x$bait_sets[[i]]
       label <- paste0("Bait ", i, ": ", round(bait_df$tightness[i], 2))
       
@@ -223,31 +231,38 @@ print.gene_fishing_probe_umap <- function(x, ...){
   if(length(x$best_bait) > 5){
     cat(paste(length(x$best_bait), "in tightest bait set:\n"))
     cat(sort(x$best_bait)[1:5], ", ...\n\n")
-    cat(paste("Found", nrow(x$bait_info) - 1, "additional bait sets"))
+    cat(paste("Found", nrow(x$bait_info) - 1, "additional bait sets.\n"))
   }else if(length(x$best_bait) == 0){
     cat("No bait found, try again with higher min_tightness.\n")
-    cat("Note, it is not recommended to use min_tightness > 0.5.")
+    cat("Note, it is not recommended to use min_tightness > 0.5.\n")
   }else{
     cat("Tightest bait set:\n")
-    cat(sort(x$best_bait), ", ...\n\n")
-    cat(paste("Found", nrow(x$bait_info) - 1, "additional bait sets"))
+    cat(sort(x$best_bait), "\n\n")
+    cat(paste("Found", nrow(x$bait_info) - 1, "additional bait sets.\n"))
   }
   
 }
 
 #' @export
-plot.gene_fishing_probe_umap <- function(x, n_random = 50, ...){
+plot.gene_fishing_probe_umap <- function(x, alpha = 5, ...){
   if(length(x$best_bait) == 0){
     cat("No bait found, try again with higher min_tightness.\n")
-    cat("Note, it is not recommended to use min_tightness > 0.5.")
+    cat("Note, it is not recommended to use min_tightness > 0.5.\n")
   }else{
+    if(any(bait_indices == "all")){
+      bait_indices <- 1:length(x$bait_sets)
+    }
+    
     all_bait <- sapply(1:nrow(x$bait_info), 
                        function(i) x$bait_sets[[i]]) %>% unlist()
     bait_df <- x$bait_info
     
-    # look at plots 
+    # look at plots (will plot the number of random genes corresponding to 
+    # alpha * number of genes in tightest bait)
+    n_random <- alpha * length(x$bait_sets[[min(bait_indices)]])
     rand_genes <- sample(setdiff(rownames(x$X), all_bait), n_random)
     genes <- c(rand_genes, all_bait)
+    
     if(is.matrix(x$X)){
       cor_mat <- cor(t(x$X[genes, ]), method = "spearman")
     } else if(class(x$X) == "SingleCellExperiment"){
@@ -257,7 +272,7 @@ plot.gene_fishing_probe_umap <- function(x, n_random = 50, ...){
       cor_mat <- cor(t(x$X[genes, ]) %>% as.matrix(), method = "spearman")
     }
     
-    eigen_df <- foreach(i = 1:nrow(bait_df), .combine = "rbind") %do% {
+    eigen_df <- foreach(i = bait_indices, .combine = "rbind") %do% {
       bait <- x$bait_sets[[i]]
       label <- paste0("Bait ", i, ": ", round(bait_df$tightness[i], 2))
       

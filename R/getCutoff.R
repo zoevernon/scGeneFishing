@@ -28,15 +28,41 @@
 #' 
 
 getCutoff <- function(X,
+                      bait_indices,
                       unit,
-                      left_lb,
-                      left_ub,
-                      right_ub,
-                      right_lb,
-                      mu,
+                      left_lb = NULL,
+                      left_ub = NULL,
+                      right_ub = NULL,
+                      right_lb = NULL,
+                      mu = NULL,
                       eps_l = 0.01,
                       eps_r = 0.01,
-                      topK = 1) {
+                      topK = 1,
+                      max_pct = 0.025) {
+  
+  # first check if there are enough genes that are fished out almost every 
+  # time 
+  if(sum(X[-bait_indices] >= max(X) - unit) >= 
+     (length(X[-bait_indices]) * max_pct)){
+    return(max(X) - unit)
+  } 
+  
+  # otherwise we will search for the appropriate cutoff
+  if(is.null(left_lb)){
+    left_lb <- min(X) + unit
+  }
+  if(is.null(right_ub)){
+    right_ub <- max(X) - unit
+  }
+  if(is.null(left_ub)){
+    left_ub <- left_lb + 0.3
+  }
+  if(is.null(right_lb)){
+    right_lb <- right_ub - 0.1
+  }
+  if(is.null(mu)){
+    mu <- (left_ub + right_lb) / 2
+  }
 
   n_X <- length(X)
   count_X <- table(sort(X))
@@ -162,6 +188,6 @@ getCutoff <- function(X,
   final_alpha_ms <- final_N_ms / n_X
   final_alpha_rs <- final_N_rs / n_X
   
-  return(est_c1s)
+  return(max(est_c1s))
 }
 
