@@ -18,7 +18,7 @@
 #' 
 
 sce_geneFishingUMAP <- function(exp_mat, bait_genes, pool_genes, 
-                                alpha, fishing_rounds, k){
+                                alpha, fishing_rounds, k, method){
   
   # create lists of genes to be fished together for each of the rounds of gene
   # fishing
@@ -53,7 +53,7 @@ sce_geneFishingUMAP <- function(exp_mat, bait_genes, pool_genes,
       cor_mat_bait_and_pool <- cor(t(logcounts(exp_mat)[c(bait_indices, 
                                                           sub_indices), ]) %>%
                                      as.matrix(), 
-                                   method = "spearman")
+                                   method = method)
       
       # get coordinates to do the spectral clustering on the coexpression matrix
       # above 
@@ -141,7 +141,7 @@ sce_geneFishingUMAP <- function(exp_mat, bait_genes, pool_genes,
 }
 
 mat_geneFishingUMAP <- function(exp_mat, bait_genes, pool_genes, 
-                                alpha, fishing_rounds, k){
+                                alpha, fishing_rounds, k, method){
   
   # create lists of genes to be fished together for each of the rounds of gene
   # fishing
@@ -176,7 +176,7 @@ mat_geneFishingUMAP <- function(exp_mat, bait_genes, pool_genes,
       cor_mat_bait_and_pool <- cor(t(exp_mat[c(bait_indices, 
                                                sub_indices), ]) %>%
                                      as.matrix(), 
-                                   method = "spearman")
+                                   method = method)
       
       # get coordinates to do the spectral clustering on the coexpression matrix
       # above 

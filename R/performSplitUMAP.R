@@ -5,9 +5,9 @@
 #' potential bait set by doing clustering with k = 2.
 #' 
 mat_performSplitUMAP <- function(potential_bait, exp_mat, n_rounds, round, alpha,
-                                 n_neighbors, min_genes) {
+                                 n_neighbors, min_genes, method) {
   cor_mat <- cor(t(exp_mat[potential_bait, ]) %>% as.matrix(), 
-                 method = "spearman")
+                 method = method)
   
   # cluster the potential bait
   num_clust <- 2
@@ -41,7 +41,8 @@ mat_performSplitUMAP <- function(potential_bait, exp_mat, n_rounds, round, alpha
   }else{
     db_index <- sapply(1:length(genes_in_clust), function(k){
       mat_computeAvgDBIndexUMAP(genes_in_clust[[k]], exp_mat, n_rounds = n_rounds, 
-                                alpha = alpha, n_neighbors = n_neighbors) %>%
+                                alpha = alpha, n_neighbors = n_neighbors,
+                                method = method) %>%
         mean()
     })    
     
@@ -57,9 +58,9 @@ mat_performSplitUMAP <- function(potential_bait, exp_mat, n_rounds, round, alpha
 
 
 sce_performSplitUMAP <- function(potential_bait, exp_mat, n_rounds, round, alpha,
-                                 n_neighbors, min_genes) {
+                                 n_neighbors, min_genes, method) {
   cor_mat <- cor(t(logcounts(exp_mat)[potential_bait, ]) %>% as.matrix(), 
-                 method = "spearman")
+                 method = method)
   
   # cluster the potential bait
   num_clust <- 2
@@ -93,7 +94,8 @@ sce_performSplitUMAP <- function(potential_bait, exp_mat, n_rounds, round, alpha
   }else{
     db_index <- sapply(1:length(genes_in_clust), function(k){
       sce_computeAvgDBIndexUMAP(genes_in_clust[[k]], exp_mat, n_rounds = n_rounds, 
-                                alpha = alpha, n_neighbors = n_neighbors) %>%
+                                alpha = alpha, n_neighbors = n_neighbors,
+                                method = method) %>%
         mean()
     })    
     

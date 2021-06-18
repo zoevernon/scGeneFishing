@@ -5,9 +5,9 @@
 #' potential bait set by doing clustering with k = 2.
 #' 
 sce_performSplitSpectral <- function(potential_bait, exp_mat, n_rounds, round, 
-                                     alpha) {
+                                     alpha, method) {
   cor_mat <- cor(t(logcounts(exp_mat)[potential_bait, ]) %>% as.matrix(), 
-                 method = "spearman")
+                 method = method)
   # cluster the potential bait
   num_clust <- 2
   
@@ -28,7 +28,8 @@ sce_performSplitSpectral <- function(potential_bait, exp_mat, n_rounds, round,
   # compute DB index for each cluster
   db_index <- sapply(1:length(genes_in_clust), function(k){
     sce_computeAvgDBIndexSpectral(genes_in_clust[[k]], exp_mat, 
-                                  n_rounds = n_rounds, alpha = alpha) %>%
+                                  n_rounds = n_rounds, alpha = alpha,
+                                  method = method) %>%
       mean()
   })    
   
@@ -41,9 +42,9 @@ sce_performSplitSpectral <- function(potential_bait, exp_mat, n_rounds, round,
 }
 
 mat_performSplitSpectral <- function(potential_bait, exp_mat, n_rounds, round, 
-                                     alpha) {
+                                     alpha, method) {
   cor_mat <- cor(t(exp_mat[potential_bait, ]) %>% as.matrix(),
-                 method = "spearman")
+                 method = method)
   # cluster the potential bait
   num_clust <- 2
   
@@ -64,7 +65,8 @@ mat_performSplitSpectral <- function(potential_bait, exp_mat, n_rounds, round,
   # compute DB index for each cluster
   db_index <- sapply(1:length(genes_in_clust), function(k){
     mat_computeAvgDBIndexSpectral(genes_in_clust[[k]], exp_mat, 
-                                  n_rounds = n_rounds, alpha = alpha) %>%
+                                  n_rounds = n_rounds, alpha = alpha, 
+                                  method = method) %>%
       mean()
   })    
   

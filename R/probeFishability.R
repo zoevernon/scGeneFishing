@@ -26,6 +26,8 @@
 #' clustering.  Default is TRUE, which is recommended for single cell data, despite
 #' a reduction in speed.
 #' @param ncores number of cores to do parallel computation on if parallel = TRUE.
+#' @param method input to \code{cor()} function telling what type of correlation
+#' to use. Defaults to spearman. 
 #' 
 #' @return List with the following components:
 #' \itemize{
@@ -47,16 +49,46 @@
 
 probeFishability <- function(X, potential_bait, n_rounds = 100, alpha = 5,
                              min_tightness = 0.5, min_genes = 5, n_neighbors = 15,
-                             umap = TRUE, ncores = 2){
+                             umap = TRUE, ncores = 2, 
+                             method = c("spearman", "pearson", "kendall")){
   doParallel::registerDoParallel(ncores)
+  
+  # check correlation method provided is correct 
+  method <- match.arg(method)
+  if(method == "kendall"){
+    message(paste0("Using kendall rank correlation is slow.",
+                   " We suggest stopping and setting method to spearman or pearson."))
+  }
   
   # assertion to make sure the entry is a matrix, sparse matrix or sce
   assertthat::assert_that(
     is.matrix(X) | any(class(X) %in% c("SingleCellExperiment", "dgCMatrix", 
-                                       "dgTMatrix", "dgRMatrix")), 
+                                       "dgTMatrix", "dgRMatrix", "dgeMatrix")), 
     msg = paste0("X must be a matrix, or in one of the following classes:\n", 
-                 "SingleCellExperiment, dgCMatrix, dgTMatrix, dgRMatrix"))
+                 "SingleCellExperiment, dgCMatrix, dgTMatrix, dgRMatrix, dgeMatrix"))
   
+  if(class(X) == "SingleCellExperiement"){
+    assertthat::assert_that(
+      any(assayNames(X) == "logcounts"), 
+      msg = paste0("There must be a logcounts assay in SCE."))
+    X_sce <- X
+    X <- logcounts(X)
+  }
+  
+  # remove any rows and columns that are all 0 
+  all_zero_rows <- which(rowSums(X) == 0)
+  all_zero_cols <- which(colSums(X) == 0)
+  if(length(all_zero_rows) > 0){
+    message(paste0("There were ", length(all_zero_rows), 
+                   " rows in X with all zeroes.  They will be removed."))
+    X <- X[-all_zero_rows, ]
+  }
+  if(length(all_zero_cols) > 0){
+    message(paste0("There were ", length(all_zero_rows), 
+                   " columns in X with all zeroes.  They will be removed."))
+    X <- X[, -all_zero_cols]
+  }
+
   # check what genes overlap with rownames of expression matrix
   potential_bait_orig <- unique(potential_bait)
   potential_bait <- intersect(rownames(X), potential_bait)
@@ -89,7 +121,8 @@ probeFishability <- function(X, potential_bait, n_rounds = 100, alpha = 5,
                                           alpha = alpha, 
                                           min_tightness = min_tightness, 
                                           min_genes = min_genes,
-                                          n_neighbors = n_neighbors)
+                                          n_neighbors = n_neighbors,
+                                          method = method)
     }else if(class(X) == "SingleCellExperiment"){
       assertthat::assert_that(
         any(assayNames(X) == "logcounts"), 
@@ -101,15 +134,17 @@ probeFishability <- function(X, potential_bait, n_rounds = 100, alpha = 5,
                                           alpha = alpha, 
                                           min_tightness = min_tightness, 
                                           min_genes = min_genes,
-                                          n_neighbors = n_neighbors)
-    }else if(class(X) %in% c("dgCMatrix", "dgTMatrix", "dgRMatrix")) {
+                                          n_neighbors = n_neighbors,
+                                          method = method)
+    }else if(class(X) %in% c("dgCMatrix", "dgTMatrix", "dgRMatrix", "dgeMatrix")) {
       results <- mat_probeFishabilityUMAP(X, 
                                           potential_bait,
                                           n_rounds = n_rounds, 
                                           alpha = alpha, 
                                           min_tightness = min_tightness, 
                                           min_genes = min_genes,
-                                          n_neighbors = n_neighbors)
+                                          n_neighbors = n_neighbors,
+                                          method = method)
     }
     
   }else{
@@ -119,7 +154,8 @@ probeFishability <- function(X, potential_bait, n_rounds = 100, alpha = 5,
                                               n_rounds = n_rounds, 
                                               alpha = alpha, 
                                               min_tightness = min_tightness, 
-                                              min_genes = min_genes)
+                                              min_genes = min_genes,
+                                              method = method)
     }else if(class(X) == "SingleCellExperiment"){
       assertthat::assert_that(
         any(assayNames(X) == "logcounts"), 
@@ -129,14 +165,16 @@ probeFishability <- function(X, potential_bait, n_rounds = 100, alpha = 5,
                                               n_rounds = n_rounds, 
                                               alpha = alpha, 
                                               min_tightness = min_tightness, 
-                                              min_genes = min_genes)
-    } else if(class(X) %in% c("dgCMatrix", "dgTMatrix", "dgRMatrix")) {
+                                              min_genes = min_genes,
+                                              method = method)
+    } else if(class(X) %in% c("dgCMatrix", "dgTMatrix", "dgRMatrix", "dgeMatrix")) {
       results <- mat_probeFishabilitySpectral(X, 
                                               potential_bait,
                                               n_rounds = n_rounds, 
                                               alpha = alpha, 
                                               min_tightness = min_tightness, 
-                                              min_genes = min_genes)
+                                              min_genes = min_genes,
+                                              method = method)
     }
   }
   
@@ -182,12 +220,12 @@ plot.gene_fishing_probe_spectral <- function(x, alpha = 5,
     genes <- c(rand_genes, all_bait)
     
     if(is.matrix(x$X)){
-      cor_mat <- cor(t(x$X[genes, ]), method = "spearman")
+      cor_mat <- cor(t(x$X[genes, ]), method = x$method)
     } else if(class(x$X) == "SingleCellExperiment"){
       cor_mat <- cor(t(logcounts(x$X)[genes, ])  %>% as.matrix(),
-                     method = "spearman")
-    } else if(class(x$X) %in% c("dgCMatrix", "dgTMatrix", "dgRMatrix")) {
-      cor_mat <- cor(t(x$X[genes, ]) %>% as.matrix(), method = "spearman")
+                     method = x$method)
+    } else if(class(x$X) %in% c("dgCMatrix", "dgTMatrix", "dgRMatrix", "dgeMatrix")) {
+      cor_mat <- cor(t(x$X[genes, ]) %>% as.matrix(), method = x$method)
     }
     
     eigen_df <- foreach(i = bait_indices, .combine = "rbind") %do% {
@@ -244,7 +282,8 @@ print.gene_fishing_probe_umap <- function(x, ...){
 }
 
 #' @export
-plot.gene_fishing_probe_umap <- function(x, alpha = 5, ...){
+plot.gene_fishing_probe_umap <- function(x, alpha = 5,
+                                         bait_indices = "all", ...){
   if(length(x$best_bait) == 0){
     cat("No bait found, try again with higher min_tightness.\n")
     cat("Note, it is not recommended to use min_tightness > 0.5.\n")
@@ -264,12 +303,12 @@ plot.gene_fishing_probe_umap <- function(x, alpha = 5, ...){
     genes <- c(rand_genes, all_bait)
     
     if(is.matrix(x$X)){
-      cor_mat <- cor(t(x$X[genes, ]), method = "spearman")
+      cor_mat <- cor(t(x$X[genes, ]), method = x$method)
     } else if(class(x$X) == "SingleCellExperiment"){
       cor_mat <- cor(t(logcounts(x$X)[genes, ]) %>% as.matrix(),
-                     method = "spearman")
-    } else if(class(x$X) %in% c("dgCMatrix", "dgTMatrix", "dgRMatrix")) {
-      cor_mat <- cor(t(x$X[genes, ]) %>% as.matrix(), method = "spearman")
+                     method = x$method)
+    } else if(class(x$X) %in% c("dgCMatrix", "dgTMatrix", "dgRMatrix", "dgeMatrix")) {
+      cor_mat <- cor(t(x$X[genes, ]) %>% as.matrix(), method = x$method)
     }
     
     eigen_df <- foreach(i = bait_indices, .combine = "rbind") %do% {

@@ -24,7 +24,8 @@
 
 
 sce_probeFishabilityUMAP <- function(exp_mat, potential_bait, n_rounds, alpha, 
-                                     min_tightness, min_genes, n_neighbors){
+                                     min_tightness, min_genes, n_neighbors,
+                                     method){
   
   # split the potential bait until we find groups of bait 
   continue_processing <- TRUE
@@ -37,7 +38,8 @@ sce_probeFishabilityUMAP <- function(exp_mat, potential_bait, n_rounds, alpha,
   db_index <- sce_computeAvgDBIndexUMAP(potential_bait, exp_mat, 
                                         n_rounds = n_rounds, 
                                         alpha = alpha, 
-                                        n_neighbors = n_neighbors) %>%
+                                        n_neighbors = n_neighbors,
+                                        method = method) %>%
     mean()
   
   if(db_index < min_tightness) {
@@ -65,7 +67,8 @@ sce_probeFishabilityUMAP <- function(exp_mat, potential_bait, n_rounds, alpha,
                                          round = round, 
                                          alpha = alpha, 
                                          n_neighbors = n_neighbors,
-                                         min_genes = min_genes)
+                                         min_genes = min_genes,
+                                         method = method)
       
       # check if any of these splits result in a DB index of less than the 
       # cutoff
@@ -155,7 +158,8 @@ sce_probeFishabilityUMAP <- function(exp_mat, potential_bait, n_rounds, alpha,
   final_output <-list(best_bait = bait_final[[1]], 
                       bait_sets = bait_final, 
                       bait_info = bait_df,
-                      X = exp_mat)
+                      X = exp_mat,
+                      method = method)
   
   class(final_output) <- "gene_fishing_probe_umap"
   
@@ -164,7 +168,8 @@ sce_probeFishabilityUMAP <- function(exp_mat, potential_bait, n_rounds, alpha,
 
 
 mat_probeFishabilityUMAP <- function(exp_mat, potential_bait, n_rounds, alpha, 
-                                     min_tightness, min_genes, n_neighbors){
+                                     min_tightness, min_genes, n_neighbors,
+                                     method){
   
   # split the potential bait until we find groups of bait 
   continue_processing <- TRUE
@@ -177,7 +182,8 @@ mat_probeFishabilityUMAP <- function(exp_mat, potential_bait, n_rounds, alpha,
   db_index <- mat_computeAvgDBIndexUMAP(potential_bait, exp_mat, 
                                         n_rounds = n_rounds, 
                                         alpha = alpha, 
-                                        n_neighbors = n_neighbors) %>%
+                                        n_neighbors = n_neighbors,
+                                        method = method) %>%
     mean()
   
   if(db_index < min_tightness) {
@@ -205,7 +211,8 @@ mat_probeFishabilityUMAP <- function(exp_mat, potential_bait, n_rounds, alpha,
                                          round = round, 
                                          alpha = alpha, 
                                          n_neighbors = n_neighbors,
-                                         min_genes = min_genes)
+                                         min_genes = min_genes,
+                                         method = method)
       
       # check if any of these splits result in a DB index of less than the 
       # cutoff
@@ -295,7 +302,8 @@ mat_probeFishabilityUMAP <- function(exp_mat, potential_bait, n_rounds, alpha,
   final_output <-list(best_bait = bait_final[[1]], 
                       bait_sets = bait_final, 
                       bait_info = bait_df,
-                      X = exp_mat)
+                      X = exp_mat,
+                      method = method)
   
   class(final_output) <- "gene_fishing_probe_umap"
   

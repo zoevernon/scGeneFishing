@@ -24,7 +24,7 @@
 
 
 sce_probeFishabilitySpectral <- function(exp_mat, potential_bait, n_rounds, alpha, 
-                                         min_tightness, min_genes){
+                                         min_tightness, min_genes, method){
   
   # split the potential bait until we find groups of bait 
   continue_processing <- TRUE
@@ -36,7 +36,8 @@ sce_probeFishabilitySpectral <- function(exp_mat, potential_bait, n_rounds, alph
   # check tightness of whole set
   db_index <- sce_computeAvgDBIndexSpectral(potential_bait, exp_mat, 
                                             n_rounds = n_rounds, 
-                                            alpha = alpha) %>%
+                                            alpha = alpha,
+                                            method = method) %>%
     mean()
   
   if(db_index < min_tightness) {
@@ -56,7 +57,8 @@ sce_probeFishabilitySpectral <- function(exp_mat, potential_bait, n_rounds, alph
                                              exp_mat, 
                                              n_rounds = n_rounds, 
                                              round = round, 
-                                             alpha = alpha)
+                                             alpha = alpha,
+                                             method = method)
       
       # check if any of these splits result in a DB index of less than the 
       # cutoff
@@ -144,7 +146,8 @@ sce_probeFishabilitySpectral <- function(exp_mat, potential_bait, n_rounds, alph
   final_output <-list(best_bait = bait_final[[1]], 
                       bait_sets = bait_final, 
                       bait_info = bait_df,
-                      X = exp_mat)
+                      X = exp_mat,
+                      method = method)
   
   class(final_output) <- "gene_fishing_probe_spectral"
   
@@ -153,7 +156,7 @@ sce_probeFishabilitySpectral <- function(exp_mat, potential_bait, n_rounds, alph
 
 
 mat_probeFishabilitySpectral <- function(exp_mat, potential_bait, n_rounds, alpha, 
-                                         min_tightness, min_genes){
+                                         min_tightness, min_genes, method){
   
   # split the potential bait until we find groups of bait 
   continue_processing <- TRUE
@@ -165,7 +168,8 @@ mat_probeFishabilitySpectral <- function(exp_mat, potential_bait, n_rounds, alph
   # check tightness of whole set
   db_index <- mat_computeAvgDBIndexSpectral(potential_bait, exp_mat, 
                                             n_rounds = n_rounds, 
-                                            alpha = alpha) %>%
+                                            alpha = alpha,
+                                            method = method) %>%
     mean()
   
   if(db_index < min_tightness) {
@@ -185,7 +189,8 @@ mat_probeFishabilitySpectral <- function(exp_mat, potential_bait, n_rounds, alph
                                              exp_mat, 
                                              n_rounds = n_rounds, 
                                              round = round, 
-                                             alpha = alpha)
+                                             alpha = alpha,
+                                             method = method)
       
       # check if any of these splits result in a DB index of less than the 
       # cutoff
@@ -273,7 +278,8 @@ mat_probeFishabilitySpectral <- function(exp_mat, potential_bait, n_rounds, alph
   final_output <-list(best_bait = bait_final[[1]], 
                       bait_sets = bait_final, 
                       bait_info = bait_df,
-                      X = exp_mat)
+                      X = exp_mat,
+                      method = method)
   
   class(final_output) <- "gene_fishing_probe_spectral"
   

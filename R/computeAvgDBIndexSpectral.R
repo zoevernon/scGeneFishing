@@ -4,8 +4,8 @@
 #' Internal function to compute tightness of gene set when probing for fishability
 #' 
 
-sce_computeAvgDBIndexSpectral <- function(bait_genes, exp_mat, k = 2, alpha = 5, 
-                                          n_rounds = 50){
+sce_computeAvgDBIndexSpectral <- function(bait_genes, exp_mat, method,
+                                          k = 2, alpha = 5, n_rounds = 50){
   # make sure the bait genes are represented 
   bait_genes <- bait_genes[bait_genes %in% rownames(exp_mat)] %>%
     as.character()
@@ -24,7 +24,7 @@ sce_computeAvgDBIndexSpectral <- function(bait_genes, exp_mat, k = 2, alpha = 5,
       # get correlation matrix for those genes
       cor_subset <- cor(t(logcounts(exp_mat)[c(bait_genes, rand_genes), ]) %>%
                           as.matrix(),
-                        method = "spearman")
+                        method = method)
       
       # get coordinates for spectral clustering
       rs <- getSpectralCoordinates(cor_subset, k)
@@ -49,8 +49,8 @@ sce_computeAvgDBIndexSpectral <- function(bait_genes, exp_mat, k = 2, alpha = 5,
   return(bait_tightness)
 }
 
-mat_computeAvgDBIndexSpectral <- function(bait_genes, exp_mat, k = 2, alpha = 5, 
-                                          n_rounds = 50){
+mat_computeAvgDBIndexSpectral <- function(bait_genes, exp_mat, method, 
+                                          k = 2, alpha = 5, n_rounds = 50){
   # make sure the bait genes are represented 
   bait_genes <- bait_genes[bait_genes %in% rownames(exp_mat)] %>%
     as.character()
@@ -68,7 +68,7 @@ mat_computeAvgDBIndexSpectral <- function(bait_genes, exp_mat, k = 2, alpha = 5,
       
       # get correlation matrix for those genes
       cor_subset <- cor(t(exp_mat[c(bait_genes, rand_genes), ]) %>% as.matrix(),
-                        method = "spearman")
+                        method = method)
       
       # get coordinates for spectral clustering
       rs <- getSpectralCoordinates(cor_subset, k)

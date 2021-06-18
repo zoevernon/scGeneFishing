@@ -29,6 +29,8 @@
 #' @param min_bait_genes minimum number of genes for bait set to be viable. 
 #' @param bait_index index of \code{bait_sets} list from \code{probeFishability()}, to 
 #' use.  Defaults to 1, which corresponds to the tightest bait.
+#' @param method input to \code{cor()} function telling what type of correlation
+#' to use. Defaults to spearman. 
 #' 
 #' @return A data.frame with the capture frequency rate for all genes
 #' 
@@ -41,16 +43,44 @@
 
 geneFishing <- function(X, bait_genes, alpha = 5, fishing_rounds = 1000, 
                         k = 2, min_tightness = 0.5, n_probing_rounds = 100, umap = TRUE,
-                        ncores = 2, min_bait_genes = 5, bait_index = 1){
+                        ncores = 2, min_bait_genes = 5, bait_index = 1, 
+                        method = c("spearman", "pearson", "kendall")){
   
   doParallel::registerDoParallel(ncores)
   
+  # check correlation method provided is correct 
+  method <- match.arg(method)
+  if(method == "kendall"){
+    message(paste0("Using kendall rank correlation is slow.",
+                   " We suggest stopping and setting method to spearman or pearson."))
+  }
   # assertion to make sure the entry is a matrix, sparse matrix or sce
   assertthat::assert_that(
     is.matrix(X) | any(class(X) %in% c("SingleCellExperiment", "dgCMatrix", 
-                                       "dgTMatrix", "dgRMatrix")), 
+                                       "dgTMatrix", "dgRMatrix", "dgeMatrix")), 
     msg = paste0("X must be a matrix, or in one of the following classes:\n", 
-                 "SingleCellExperiment, dgCMatrix, dgTMatrix, dgRMatrix"))
+                 "SingleCellExperiment, dgCMatrix, dgTMatrix, dgRMatrix, dgeMatrix"))
+  
+  if(class(X) == "SingleCellExperiement"){
+    assertthat::assert_that(
+      any(assayNames(X) == "logcounts"), 
+      msg = paste0("There must be a logcounts assay in SCE."))
+    X <- logcounts(X)
+  }
+  
+  # remove any rows and columns that are all 0 
+  all_zero_rows <- which(rowSums(X) == 0)
+  all_zero_cols <- which(colSums(X) == 0)
+  if(length(all_zero_rows) > 0){
+    message(paste0("There were ", length(all_zero_rows), 
+                   " rows in X with all zeroes.  They will be removed."))
+    X <- X[-all_zero_rows, ]
+  }
+  if(length(all_zero_cols) > 0){
+    message(paste0("There were ", length(all_zero_rows), 
+                   " columns in X with all zeroes.  They will be removed."))
+    X <- X[, -all_zero_cols]
+  }
   
   # check class of bait and if it is from bait probing just use the best 
   # bait 
@@ -92,7 +122,7 @@ geneFishing <- function(X, bait_genes, alpha = 5, fishing_rounds = 1000,
   if(is.matrix(X)){
     fish_freq_df <- mat_geneFishing(X, bait_genes, pool_genes, alpha,
                                     fishing_rounds, k, umap, n_probing_rounds, 
-                                    min_tightness, used_probe_output)
+                                    min_tightness, used_probe_output, method)
   }else if(class(X) == "SingleCellExperiment"){
     # stop if there is no logcounts assay
     assertthat::assert_that(
@@ -102,11 +132,11 @@ geneFishing <- function(X, bait_genes, alpha = 5, fishing_rounds = 1000,
     
     fish_freq_df <- sce_geneFishing(X, bait_genes, pool_genes, alpha, 
                                     fishing_rounds, k, umap, n_probing_rounds,
-                                    min_tightness, used_probe_output)
-  } else if(class(X) %in% c("dgCMatrix", "dgTMatrix", "dgRMatrix")) {
+                                    min_tightness, used_probe_output, method)
+  } else if(class(X) %in% c("dgCMatrix", "dgTMatrix", "dgRMatrix", "dgeMatrix")) {
     fish_freq_df <- mat_geneFishing(X, bait_genes, pool_genes, alpha,
                                     fishing_rounds, k, umap, n_probing_rounds,
-                                    min_tightness, used_probe_output)
+                                    min_tightness, used_probe_output, method)
   }
   
   # automatically select cutoff
@@ -138,7 +168,8 @@ geneFishing <- function(X, bait_genes, alpha = 5, fishing_rounds = 1000,
     parameters = list(k = k, fishing_rounds = fishing_rounds, 
                       n_probing_rounds = n_probing_rounds,
                       min_tightness = min_tightness,
-                      min_bait_genes = min_bait_genes)
+                      min_bait_genes = min_bait_genes,
+                      method = method)
   )
   class(final_output) <- "gene_fishing"
   
@@ -146,18 +177,23 @@ geneFishing <- function(X, bait_genes, alpha = 5, fishing_rounds = 1000,
 }
 
 sce_geneFishing <- function(X, bait_genes, pool_genes, alpha, fishing_rounds, 
-                            k, umap, n_rounds, min_tightness, used_probe_output){
+                            k, umap, n_rounds, min_tightness, used_probe_output, 
+                            method){
   # if user inputted bait not from probeFishability, make sure that the 
   # provided bait set is tight enough
   if(used_probe_output == FALSE){
     db_index <- ifelse(umap, 
                        sce_computeAvgDBIndexUMAP(bait_genes, X, 
+                                                 k = k,
                                                  n_rounds = n_rounds, 
-                                                 alpha = alpha) %>%
+                                                 alpha = alpha, 
+                                                 method = method) %>%
                          mean(),
                        sce_computeAvgDBIndexSpectral(bait_genes, X, 
+                                                     k = k,
                                                      n_rounds = n_rounds, 
-                                                     alpha = alpha) %>%
+                                                     alpha = alpha, 
+                                                     method = method) %>%
                          mean())
     
     # check that the bait is tight enough
@@ -170,28 +206,33 @@ sce_geneFishing <- function(X, bait_genes, pool_genes, alpha, fishing_rounds,
   # do gene fishing in UMAP 
   if(umap){
     fish_freq_df <- sce_geneFishingUMAP(X, bait_genes, pool_genes, alpha, 
-                                        fishing_rounds, k)
+                                        fishing_rounds, k, method)
   }else{
     fish_freq_df <- sce_geneFishingSpectral(X, bait_genes, pool_genes, alpha, 
-                                            fishing_rounds, k)
+                                            fishing_rounds, k, method)
   }
   
   return(fish_freq_df)
 }
 
 mat_geneFishing <- function(X, bait_genes, pool_genes, alpha, fishing_rounds, 
-                            k, umap, n_rounds, min_tightness, used_probe_output){
+                            k, umap, n_rounds, min_tightness, used_probe_output,
+                            method){
   # if user inputted bait not from probeFishability, make sure that the 
   # provided bait set is tight enough
   if(used_probe_output == FALSE){
     db_index <- ifelse(umap, 
                        mat_computeAvgDBIndexUMAP(bait_genes, X, 
+                                                 k = k,
                                                  n_rounds = n_rounds, 
-                                                 alpha = alpha) %>%
+                                                 alpha = alpha,
+                                                 method = method) %>%
                          mean(),
                        mat_computeAvgDBIndexSpectral(bait_genes, X, 
+                                                     k = k,
                                                      n_rounds = n_rounds, 
-                                                     alpha = alpha) %>%
+                                                     alpha = alpha,
+                                                     method = method) %>%
                          mean())
     
     # check that the bait is tight enough
@@ -204,10 +245,10 @@ mat_geneFishing <- function(X, bait_genes, pool_genes, alpha, fishing_rounds,
   # do gene fishing in UMAP 
   if(umap){
     fish_freq_df <- mat_geneFishingUMAP(X, bait_genes, pool_genes,
-                                        alpha, fishing_rounds, k)
+                                        alpha, fishing_rounds, k, method)
   }else{
     fish_freq_df <- mat_geneFishingSpectral(X, bait_genes, pool_genes,
-                                            alpha, fishing_rounds, k)
+                                            alpha, fishing_rounds, k, method)
   }
   
   return(fish_freq_df)
