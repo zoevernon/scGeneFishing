@@ -6,15 +6,17 @@
 \usage{
 getCutoff(
   X,
+  bait_indices,
   unit,
-  left_lb,
-  left_ub,
-  right_ub,
-  right_lb,
-  mu,
+  left_lb = NULL,
+  left_ub = NULL,
+  right_ub = NULL,
+  right_lb = NULL,
+  mu = NULL,
   eps_l = 0.01,
   eps_r = 0.01,
-  topK = 1
+  topK = 1,
+  max_pct = 0.025
 )
 }
 \arguments{

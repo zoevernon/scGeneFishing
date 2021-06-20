@@ -11,10 +11,12 @@ geneFishing(
   fishing_rounds = 1000,
   k = 2,
   min_tightness = 0.5,
-  n_rounds = 100,
+  n_probing_rounds = 100,
   umap = TRUE,
   ncores = 2,
-  min_bait_genes = 5
+  min_bait_genes = 5,
+  bait_index = 1,
+  method = c("spearman", "pearson", "kendall")
 )
 }
 \arguments{
@@ -39,7 +41,7 @@ medoid of the potential bait genes and a set of randomly sampled genes. The
 average of these tightness measures are taken over \code{n_rounds} random samples
 of genes.}
 
-\item{n_rounds}{number of random samples to be used in assessing fishability
+\item{n_probing_rounds}{number of random samples to be used in assessing fishability
 of a set of genes.  The default is 100.  .}
 
 \item{umap}{indicator of whether the computation should be done using UMAP.
@@ -48,6 +50,12 @@ The default is TRUE.  When umap = FALSE it will use spectral coordinates.}
 \item{ncores}{number of cores to do parallel computation on if parallel = TRUE.}
 
 \item{min_bait_genes}{minimum number of genes for bait set to be viable.}
+
+\item{bait_index}{index of \code{bait_sets} list from \code{probeFishability()}, to
+use.  Defaults to 1, which corresponds to the tightest bait.}
+
+\item{method}{input to \code{cor()} function telling what type of correlation
+to use. Defaults to spearman.}
 
 \item{exp_mat}{matrix of gene expression where the rows are genes and the
 columns are samples (cells or individuals).}

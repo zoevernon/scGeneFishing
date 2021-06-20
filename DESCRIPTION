@@ -1,5 +1,5 @@
 Package: GeneFishing
-Title: What the Package Does (One Line, Title Case)
+Title: discover new genes co-expressed with biological processes with RNA sequencing data.
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Zoe",
@@ -14,7 +14,18 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
-Imports: foreach, doParallel, LICORS, Rfast, gdata, umap, matrixStats, stringr, fdrtool, Matrix
+Imports: 
+    foreach,
+    doParallel, 
+    LICORS,
+    Rfast,
+    gdata,
+    umap,
+    matrixStats,
+    stringr,
+    fdrtool,
+    Matrix, 
+    SummarizedExperiment
 Suggests: 
     rmarkdown,
     knitr,

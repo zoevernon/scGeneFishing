@@ -43,8 +43,10 @@
 #' @examples
 #' 
 #' @import foreach
+#' @import dplyr
 #' @import ggplot2
-#' @import Matrix
+#' @importClassesFrom Matrix dgCMatrix dgeMatrix dgTMatrix dgRMatrix
+#' @importFrom SummarizedExperiment assay assayNames
 #' @export
 
 probeFishability <- function(X, potential_bait, n_rounds = 100, alpha = 5,
@@ -63,16 +65,17 @@ probeFishability <- function(X, potential_bait, n_rounds = 100, alpha = 5,
   # assertion to make sure the entry is a matrix, sparse matrix or sce
   assertthat::assert_that(
     is.matrix(X) | any(class(X) %in% c("SingleCellExperiment", "dgCMatrix", 
-                                       "dgTMatrix", "dgRMatrix", "dgeMatrix")), 
+                                       "dgTMatrix", "dgRMatrix", "dgeMatrix",
+                                       "SummarizedExperiment")), 
     msg = paste0("X must be a matrix, or in one of the following classes:\n", 
                  "SingleCellExperiment, dgCMatrix, dgTMatrix, dgRMatrix, dgeMatrix"))
   
-  if(class(X) == "SingleCellExperiement"){
+  if(any(class(X) %in% c("SingleCellExperiment", "SummarizedExperiment"))){
     assertthat::assert_that(
       any(assayNames(X) == "logcounts"), 
-      msg = paste0("There must be a logcounts assay in SCE."))
+      msg = paste0("There must be a logcounts assay."))
     X_sce <- X
-    X <- logcounts(X)
+    X <- assay(X, expr_values = "logcounts")
   }
   
   # remove any rows and columns that are all 0 
@@ -114,75 +117,30 @@ probeFishability <- function(X, potential_bait, n_rounds = 100, alpha = 5,
   }
     
   if(umap){
-    if(is.matrix(X)){
-      results <- mat_probeFishabilityUMAP(X, 
-                                          potential_bait,
-                                          n_rounds = n_rounds, 
-                                          alpha = alpha, 
-                                          min_tightness = min_tightness, 
-                                          min_genes = min_genes,
-                                          n_neighbors = n_neighbors,
-                                          method = method)
-    }else if(class(X) == "SingleCellExperiment"){
-      assertthat::assert_that(
-        any(assayNames(X) == "logcounts"), 
-        msg = paste0("There must be a logcounts assay in SCE."))
-      
-      results <- sce_probeFishabilityUMAP(X, 
-                                          potential_bait,
-                                          n_rounds = n_rounds, 
-                                          alpha = alpha, 
-                                          min_tightness = min_tightness, 
-                                          min_genes = min_genes,
-                                          n_neighbors = n_neighbors,
-                                          method = method)
-    }else if(class(X) %in% c("dgCMatrix", "dgTMatrix", "dgRMatrix", "dgeMatrix")) {
-      results <- mat_probeFishabilityUMAP(X, 
-                                          potential_bait,
-                                          n_rounds = n_rounds, 
-                                          alpha = alpha, 
-                                          min_tightness = min_tightness, 
-                                          min_genes = min_genes,
-                                          n_neighbors = n_neighbors,
-                                          method = method)
-    }
-    
+    results <- probeFishabilityUMAP(X, 
+                                    potential_bait,
+                                    n_rounds = n_rounds, 
+                                    alpha = alpha, 
+                                    min_tightness = min_tightness, 
+                                    min_genes = min_genes,
+                                    n_neighbors = n_neighbors,
+                                    method = method)
   }else{
-    if(is.matrix(X)){
-      results <- mat_probeFishabilitySpectral(X, 
-                                              potential_bait,
-                                              n_rounds = n_rounds, 
-                                              alpha = alpha, 
-                                              min_tightness = min_tightness, 
-                                              min_genes = min_genes,
-                                              method = method)
-    }else if(class(X) == "SingleCellExperiment"){
-      assertthat::assert_that(
-        any(assayNames(X) == "logcounts"), 
-        msg = paste0("There must be a logcounts assay in SCE."))
-      results <- sce_probeFishabilitySpectral(X, 
-                                              potential_bait,
-                                              n_rounds = n_rounds, 
-                                              alpha = alpha, 
-                                              min_tightness = min_tightness, 
-                                              min_genes = min_genes,
-                                              method = method)
-    } else if(class(X) %in% c("dgCMatrix", "dgTMatrix", "dgRMatrix", "dgeMatrix")) {
-      results <- mat_probeFishabilitySpectral(X, 
-                                              potential_bait,
-                                              n_rounds = n_rounds, 
-                                              alpha = alpha, 
-                                              min_tightness = min_tightness, 
-                                              min_genes = min_genes,
-                                              method = method)
-    }
+    results <- probeFishabilitySpectral(X, 
+                                        potential_bait,
+                                        n_rounds = n_rounds, 
+                                        alpha = alpha, 
+                                        min_tightness = min_tightness, 
+                                        min_genes = min_genes,
+                                        method = method)
   }
+  
   
   return(results)
 }
 
 #' @export
-print.gene_fishing_probe_spectral <- function(x, ...){
+print.gene_fishing_probe <- function(x, ...){
   if(length(x$best_bait) > 5){
     cat(paste(length(x$best_bait), "in tightest bait set:\n"))
     cat(sort(x$best_bait)[1:5], ", ...\n\n")
@@ -199,13 +157,13 @@ print.gene_fishing_probe_spectral <- function(x, ...){
 }
 
 #' @export
-plot.gene_fishing_probe_spectral <- function(x, alpha = 5, 
-                                             bait_indices = "all", ...){
+plot.gene_fishing_probe <- function(x, alpha = 5, 
+                                    bait_indices = "all", ...){
   if(length(x$best_bait) == 0){
     cat("No bait found, try again with higher min_tightness.\n")
     cat("Note, it is not recommended to use min_tightness > 0.5.\n")
   }else{
-    if(any(bait_indices == "all")){
+    if(any(bait_indices == "all") | any(!bait_indices %in% 1:length(x$bait_sets))){
       bait_indices <- 1:length(x$bait_sets)
     }
     
@@ -262,88 +220,3 @@ plot.gene_fishing_probe_spectral <- function(x, alpha = 5,
   }
  
 }
-
-
-#' @export
-print.gene_fishing_probe_umap <- function(x, ...){
-  if(length(x$best_bait) > 5){
-    cat(paste(length(x$best_bait), "in tightest bait set:\n"))
-    cat(sort(x$best_bait)[1:5], ", ...\n\n")
-    cat(paste("Found", nrow(x$bait_info) - 1, "additional bait sets.\n"))
-  }else if(length(x$best_bait) == 0){
-    cat("No bait found, try again with higher min_tightness.\n")
-    cat("Note, it is not recommended to use min_tightness > 0.5.\n")
-  }else{
-    cat("Tightest bait set:\n")
-    cat(sort(x$best_bait), "\n\n")
-    cat(paste("Found", nrow(x$bait_info) - 1, "additional bait sets.\n"))
-  }
-  
-}
-
-#' @export
-plot.gene_fishing_probe_umap <- function(x, alpha = 5,
-                                         bait_indices = "all", ...){
-  if(length(x$best_bait) == 0){
-    cat("No bait found, try again with higher min_tightness.\n")
-    cat("Note, it is not recommended to use min_tightness > 0.5.\n")
-  }else{
-    if(any(bait_indices == "all")){
-      bait_indices <- 1:length(x$bait_sets)
-    }
-    
-    all_bait <- sapply(1:nrow(x$bait_info), 
-                       function(i) x$bait_sets[[i]]) %>% unlist()
-    bait_df <- x$bait_info
-    
-    # look at plots (will plot the number of random genes corresponding to 
-    # alpha * number of genes in tightest bait)
-    n_random <- alpha * length(x$bait_sets[[min(bait_indices)]])
-    rand_genes <- sample(setdiff(rownames(x$X), all_bait), n_random)
-    genes <- c(rand_genes, all_bait)
-    
-    if(is.matrix(x$X)){
-      cor_mat <- cor(t(x$X[genes, ]), method = x$method)
-    } else if(class(x$X) == "SingleCellExperiment"){
-      cor_mat <- cor(t(logcounts(x$X)[genes, ]) %>% as.matrix(),
-                     method = x$method)
-    } else if(class(x$X) %in% c("dgCMatrix", "dgTMatrix", "dgRMatrix", "dgeMatrix")) {
-      cor_mat <- cor(t(x$X[genes, ]) %>% as.matrix(), method = x$method)
-    }
-    
-    eigen_df <- foreach(i = bait_indices, .combine = "rbind") %do% {
-      bait <- x$bait_sets[[i]]
-      label <- paste0("Bait ", i, ": ", round(bait_df$tightness[i], 2))
-      
-      # remove any rows that are missing 
-      cor_mat_tmp <- cor_mat[c(rand_genes, bait), 
-                             c(rand_genes, bait)]
-      
-      # see if any columns have zero variance 
-      cols <- which(is.na(matrixStats::colSds(cor_mat_tmp, na.rm = TRUE)))
-      if(length(cols) > 0){
-        cor_mat_tmp <- cor_mat_tmp[-cols, -cols]
-      }
-      
-      eigen_space <- getUMAPCoordinates(cor_mat_tmp, 2) %>% 
-        data.frame() 
-      
-      
-      eigen_space %>% dplyr::mutate(bait = ifelse(rownames(eigen_space) %in% 
-                                                    as.character(bait), "bait", "random")) %>%
-        dplyr::mutate(gene = rownames(eigen_space[['coordinates']]),
-                      label = label)
-    }
-    
-    p <- ggplot(eigen_df) + 
-      geom_point(aes(x = X1, y = X2, color = bait), 
-                 alpha = 0.5) + 
-      theme_bw() + scale_color_discrete(name = "Gene type") +
-      facet_wrap(~label) + theme(legend.position = "top") + 
-      labs(x = "UMAP.1", y = "UMAP.2")
-    
-    return(p)
-  }
-  
-}
-

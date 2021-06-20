@@ -13,7 +13,8 @@ probeFishability(
   min_genes = 5,
   n_neighbors = 15,
   umap = TRUE,
-  ncores = 2
+  ncores = 2,
+  method = c("spearman", "pearson", "kendall")
 )
 }
 \arguments{
@@ -39,6 +40,9 @@ clustering.  Default is TRUE, which is recommended for single cell data, despite
 a reduction in speed.}
 
 \item{ncores}{number of cores to do parallel computation on if parallel = TRUE.}
+
+\item{method}{input to \code{cor()} function telling what type of correlation
+to use. Defaults to spearman.}
 
 \item{exp_mat}{matrix of gene expression where the rows are genes and the
 columns are samples (cells or individuals).}
