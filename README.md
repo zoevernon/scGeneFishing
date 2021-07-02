@@ -18,11 +18,12 @@ devtools::install_github("zoevernon/GeneFishing")
 ## Step 1: define a bait set 
 The ```probeFishability``` function will automatically search through a set of potential bait genes to determine if there are any subsets which can be used in ```GeneFishing```.  
 ```{r, eval = F}
-discovered_bait <- probeFishability(counts, 
+discovered_bait <- probeFishability(X, 
                                     potential_bait, 
+                                    n_rounds = 100, 
                                     min_tightness = 0.5, 
                                     alpha = 5,
-                                    n_samples = 100, 
+                                    umap = TRUE,
                                     ncores = 2)
 ```
 The tuning parameters ```min_tightness``` and ```alpha``` control the level of coexpression which is required to say a set of genes can be used as bait.  
@@ -31,14 +32,13 @@ The tuning parameters ```min_tightness``` and ```alpha``` control the level of c
 If the user already has a bait set they want to use, or has used ```probeFishability``` to find one, they can then run ```geneFishing``` to search for additional genes that are likely to related to the function of the bait set. 
 
 ```{r, eval = F}
-discovered_bait <- geneFishing(counts, 
-                               bait, 
+discovered_bait <- geneFishing(X, 
+                               bait_genes, 
                                k = 2, 
                                umap = TRUE,
                                alpha = 5,
-                               n_rounds = 10000,
+                               n_rounds = 1000,
                                min_tightness = 0.5,
-                               n_samples = 100, 
                                ncores = 2)
 ```
 

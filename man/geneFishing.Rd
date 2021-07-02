@@ -20,8 +20,14 @@ geneFishing(
 )
 }
 \arguments{
+\item{X}{matrix of gene expression where the rows are genes and the
+columns are samples (cells or individuals).}
+
 \item{bait_genes}{genes to use as bait to fish out similar genes from the
-\code{exp_mat}.  These genes should be a subset of the rownames of \code{exp_mat}.}
+\code{X}.  These genes should be a subset of the rownames of \code{X}. It
+can also be the output of the \code{probeFishability} function.  In that case
+it will by default use the tightest bait set.  To change bait set you can use
+the \code{bait_index} parameter.}
 
 \item{alpha}{controls number of random genes that are sampled in each round
 of fishing.  It will sample \code{alpha} times the number of genes in
@@ -38,7 +44,7 @@ if you fished out too many genes with \code{k = 2} it can help to increase to
 to be to be considered as bait.  Tightness is measured computing the ratio of
 the median distance between all potential bait genes to the distance between the
 medoid of the potential bait genes and a set of randomly sampled genes. The
-average of these tightness measures are taken over \code{n_rounds} random samples
+average of these tightness measures are taken over \code{n_probing_rounds} random samples
 of genes.}
 
 \item{n_probing_rounds}{number of random samples to be used in assessing fishability
@@ -56,9 +62,6 @@ use.  Defaults to 1, which corresponds to the tightest bait.}
 
 \item{method}{input to \code{cor()} function telling what type of correlation
 to use. Defaults to spearman.}
-
-\item{exp_mat}{matrix of gene expression where the rows are genes and the
-columns are samples (cells or individuals).}
 }
 \value{
 A data.frame with the capture frequency rate for all genes

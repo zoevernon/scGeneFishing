@@ -4,11 +4,11 @@
 #' Function to find a set of genes that can be used as bait in geneFishing from 
 #' a larger set of potential bait genes. 
 #' 
-#' @param exp_mat matrix of gene expression where the rows are genes and the 
+#' @param X matrix of gene expression where the rows are genes and the 
 #' columns are samples (cells or individuals). 
 #' @param potential_bait_genes set of genes for which to check if there is a 
 #' subset that can be used as bait.  These genes should be a subset of the 
-#' rownames of \code{exp_mat}. 
+#' rownames of \code{X}. 
 #' @param n_rounds number of random samples to be used in assessing fishability
 #' of a set of genes.  The default is 100.  
 #' @param alpha controls number of random genes that are sampled in each round 
@@ -200,8 +200,15 @@ plot.gene_fishing_probe <- function(x, alpha = 5,
         cor_mat_tmp <- cor_mat_tmp[-cols, -cols]
       }
       
-      eigen_space <- getSpectralCoordinates(cor_mat_tmp, 2)$coordinates %>% 
-        data.frame() 
+      if(x$type == "spectral"){
+        eigen_space <- getSpectralCoordinates(cor_mat_tmp, 2)$coordinates %>% 
+          data.frame()
+        
+      }else{
+        eigen_space <- getUMAPCoordinates(cor_mat_tmp, 2) %>% 
+          data.frame() %>% rename(eigen.1 = X1, eigen.2 = X2)
+      }
+
       
       
       eigen_space %>% dplyr::mutate(bait = ifelse(rownames(eigen_space) %in% 
@@ -210,11 +217,20 @@ plot.gene_fishing_probe <- function(x, alpha = 5,
                       label = label)
     }
     
+    if(x$type == "spectral"){
+      x_lab <- "eigen.1"
+      y_lab <- "eigen.2"
+    }else{
+      x_lab <- "UMAP.1"
+      y_lab <- "UMAP.2"
+    }
+    
     p <- ggplot(eigen_df) + 
       geom_point(aes(x = eigen.1, y = eigen.2, color = bait), 
                  alpha = 0.5) + 
       theme_bw() + scale_color_discrete(name = "Gene type") +
-      facet_wrap(~label) + theme(legend.position = "top")
+      facet_wrap(~label) + theme(legend.position = "top") + 
+      labs(x = x_lab, y = y_lab)
     
     return(p)
   }

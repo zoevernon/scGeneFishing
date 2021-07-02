@@ -158,7 +158,7 @@ probeFishabilityUMAP <- function(exp_mat, potential_bait, n_rounds, alpha,
                       bait_info = bait_df,
                       X = exp_mat,
                       method = method,
-                      type = "spectral")
+                      type = "UMAP")
   
   class(final_output) <- "gene_fishing_probe"
   

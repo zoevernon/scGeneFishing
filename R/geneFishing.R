@@ -3,10 +3,13 @@
 #' 
 #' Function to perform gene fishing on a gene expression matrix. 
 #' 
-#' @param exp_mat matrix of gene expression where the rows are genes and the 
+#' @param X matrix of gene expression where the rows are genes and the 
 #' columns are samples (cells or individuals). 
 #' @param bait_genes genes to use as bait to fish out similar genes from the 
-#' \code{exp_mat}.  These genes should be a subset of the rownames of \code{exp_mat}. 
+#' \code{X}.  These genes should be a subset of the rownames of \code{X}. It 
+#' can also be the output of the \code{probeFishability} function.  In that case
+#' it will by default use the tightest bait set.  To change bait set you can use
+#' the \code{bait_index} parameter.
 #' @param alpha controls number of random genes that are sampled in each round 
 #' of fishing.  It will sample \code{alpha} times the number of genes in 
 #' \code{bait_genes}.  The default is 5.  The stronger the bait separates from 
@@ -21,7 +24,7 @@
 #' to be to be considered as bait.  Tightness is measured computing the ratio of
 #' the median distance between all potential bait genes to the distance between the
 #' medoid of the potential bait genes and a set of randomly sampled genes. The
-#' average of these tightness measures are taken over \code{n_rounds} random samples
+#' average of these tightness measures are taken over \code{n_probing_rounds} random samples
 #' of genes.  
 #' @param umap indicator of whether the computation should be done using UMAP.
 #' The default is TRUE.  When umap = FALSE it will use spectral coordinates. 
@@ -127,13 +130,13 @@ geneFishing <- function(X, bait_genes, alpha = 5, fishing_rounds = 1000,
     db_index <- ifelse(umap, 
                        computeAvgDBIndexUMAP(bait_genes, X, 
                                              k = k,
-                                             n_rounds = n_rounds, 
+                                             n_rounds = n_probing_rounds, 
                                              alpha = alpha,
                                              method = method) %>%
                          mean(),
                        computeAvgDBIndexSpectral(bait_genes, X, 
                                                  k = k,
-                                                 n_rounds = n_rounds, 
+                                                 n_rounds = n_probing_rounds, 
                                                  alpha = alpha,
                                                  method = method) %>%
                          mean())

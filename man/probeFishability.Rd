@@ -18,6 +18,9 @@ probeFishability(
 )
 }
 \arguments{
+\item{X}{matrix of gene expression where the rows are genes and the
+columns are samples (cells or individuals).}
+
 \item{n_rounds}{number of random samples to be used in assessing fishability
 of a set of genes.  The default is 100.}
 
@@ -44,12 +47,9 @@ a reduction in speed.}
 \item{method}{input to \code{cor()} function telling what type of correlation
 to use. Defaults to spearman.}
 
-\item{exp_mat}{matrix of gene expression where the rows are genes and the
-columns are samples (cells or individuals).}
-
 \item{potential_bait_genes}{set of genes for which to check if there is a
 subset that can be used as bait.  These genes should be a subset of the
-rownames of \code{exp_mat}.}
+rownames of \code{X}.}
 }
 \value{
 List with the following components:

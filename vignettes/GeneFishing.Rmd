@@ -30,11 +30,13 @@ insulin_secretion[1:6]
 
 ## Probe for bait sets 
 Search through ```insulin_secretion``` to find a subset of genes that can be used
-as bait in GeneFishing. 
+as bait in GeneFishing.  Note, that in order for this vingette to compute quickly
+```n_rounds = 10```, but in practice this should be at least 100.  
+
 ```{r probe_fishability}
 set.seed(3908)
 go_subset <- intersect(rownames(pancreas), insulin_secretion)
-baits <- probeFishability(pancreas, go_subset, umap = FALSE, n_rounds = 50,
+baits <- probeFishability(pancreas, go_subset, umap = FALSE, n_rounds = 10,
                           min_genes = 10)
 baits
 ```
@@ -52,19 +54,29 @@ plot(baits)
 
 
 ## Do GeneFishing
-Need to update this function to take directly in the ```baits``` object and 
-where it will check if the supplied bait can actually be used before trying to 
-do GeneFishing (as described in README).  Note, in practice one should do more than
-100 rounds of GeneFishing, however to make the vignette compute in a reasonable
-amount of time we are only using 100 here.  
+Again, in practice one should do more than 25 rounds of GeneFishing, however to 
+make the vignette compute in a reasonable amount of time we are only using 25
+here.  Additionally, you can pass the output of the previous function, 
+along with a index corresponding to the bait number you would like to do the 
+fishing for.  
 
 ```{r gene_fishing}
 fishing_results <- geneFishing(pancreas,
-                               baits$best_bait,
-                               fishing_rounds = 50,
+                               baits,
+                               fishing_rounds = 25,
                                umap = FALSE)
 fishing_results
 ```
+
+Alternatively you can directly pass a vector of genes as bait.
+```{r eval = FALSE}
+# not run 
+fishing_results <- geneFishing(pancreas,
+                               baits$best_bait,
+                               fishing_rounds = 25,
+                               umap = FALSE)
+```
+
 
 Plot of capture frequency rate (CFR)
 ```{r plot_gene_fishing, fig.width=7, fig.height=4}
@@ -76,7 +88,7 @@ to get a more accurate set of fished out genes
 ```{r gf_three_clusters, fig.width=7, fig.height=4}
 fishing_results_k3 <- geneFishing(pancreas,
                                   baits$best_bait,
-                                  fishing_rounds = 50,
+                                  fishing_rounds = 25,
                                   k = 3,
                                   umap = FALSE)
 fishing_results_k3
