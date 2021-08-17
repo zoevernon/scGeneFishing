@@ -25,6 +25,10 @@
 probeFishabilitySpectral <- function(exp_mat, potential_bait, n_rounds, alpha, 
                                          min_tightness, min_genes, method){
   
+  using_dist <- ifelse(method %in% c("euclidean", "maximum", "manhattan", 
+                                     "canberra", "binary", "minkowski"), 
+                       TRUE, FALSE)
+  
   # split the potential bait until we find groups of bait 
   continue_processing <- TRUE
   bait <- list()
@@ -33,11 +37,26 @@ probeFishabilitySpectral <- function(exp_mat, potential_bait, n_rounds, alpha,
   round <- 1
   
   # check tightness of whole set
-  db_index <- computeAvgDBIndexSpectral(potential_bait, exp_mat, 
-                                        n_rounds = n_rounds, 
-                                        alpha = alpha,
-                                        method = method) %>%
-    mean()
+  if(using_dist){
+    db_index <- computeAvgDBIndexDist(potential_bait, exp_mat, 
+                                          n_rounds = n_rounds, 
+                                          alpha = alpha,
+                                          method = method) %>%
+      mean()
+  }else if(method == "cosine"){
+    db_index <- computeAvgDBIndexCosSpectral(potential_bait, exp_mat, 
+                                             n_rounds = n_rounds, 
+                                             alpha = alpha,
+                                             method = method) %>%
+      mean()
+  }else{
+    db_index <- computeAvgDBIndexSpectral(potential_bait, exp_mat, 
+                                          n_rounds = n_rounds, 
+                                          alpha = alpha,
+                                          method = method) %>%
+      mean()
+  }
+  
   
   if(db_index < min_tightness) {
     continue_processing <- FALSE

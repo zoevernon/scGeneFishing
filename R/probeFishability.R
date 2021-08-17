@@ -52,15 +52,13 @@
 probeFishability <- function(X, potential_bait, n_rounds = 100, alpha = 5,
                              min_tightness = 0.5, min_genes = 5, n_neighbors = 15,
                              umap = TRUE, ncores = 2, 
-                             method = c("spearman", "pearson", "kendall")){
+                             method = c("spearman", "pearson", "cosine",
+                                        "euclidean",  "maximum", "manhattan", 
+                                        "canberra", "binary", "minkowski")){
   doParallel::registerDoParallel(ncores)
   
   # check correlation method provided is correct 
   method <- match.arg(method)
-  if(method == "kendall"){
-    message(paste0("Using kendall rank correlation is slow.",
-                   " We suggest stopping and setting method to spearman or pearson."))
-  }
   
   # assertion to make sure the entry is a matrix, sparse matrix or sce
   assertthat::assert_that(
@@ -77,6 +75,16 @@ probeFishability <- function(X, potential_bait, n_rounds = 100, alpha = 5,
     X_sce <- X
     X <- assay(X, expr_values = "logcounts")
   }
+  
+  # check that there are alpha * length(potential_bait_genes) in the data
+  assertthat::assert_that(
+    (length(potential_bait) * alpha) <= (nrow(X) - length(potential_bait)), 
+    msg = paste0("There are not enough genes (rows) provided.  Need to have ", 
+                 "at least alpha * length(potential_bait) rows in X."))
+  
+  # needs to be more than 1 column
+  assertthat::assert_that(
+    ncol(X) > 1, msg = "X needs to have more than 1 column")
   
   # remove any rows and columns that are all 0 
   all_zero_rows <- which(rowSums(X) == 0)
@@ -178,12 +186,21 @@ plot.gene_fishing_probe <- function(x, alpha = 5,
     genes <- c(rand_genes, all_bait)
     
     if(is.matrix(x$X)){
-      cor_mat <- cor(t(x$X[genes, ]), method = x$method)
+      X <- x$X[genes, ]
     } else if(class(x$X) == "SingleCellExperiment"){
-      cor_mat <- cor(t(logcounts(x$X)[genes, ])  %>% as.matrix(),
-                     method = x$method)
+      X <- logcounts(x$X)[genes, ] %>% as.matrix()
     } else if(class(x$X) %in% c("dgCMatrix", "dgTMatrix", "dgRMatrix", "dgeMatrix")) {
-      cor_mat <- cor(t(x$X[genes, ]) %>% as.matrix(), method = x$method)
+      X <- x$X[genes, ] %>% as.matrix()
+    }
+    
+    if(x$method %in% c("euclidean",  "maximum", "manhattan", "canberra", 
+                       "binary", "minkowski")){
+      cor_mat <- dist(X, method = x$method) %>% as.matrix()
+      cor_mat <- 1 / (cor_mat + 1)
+    } else if(x$method == "cosine"){
+      cor_mat <- cosineSimMatrix(X)
+    } else {
+      cor_mat <- cor(t(X), method = x$method)
     }
     
     eigen_df <- foreach(i = bait_indices, .combine = "rbind") %do% {

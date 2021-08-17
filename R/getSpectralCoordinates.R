@@ -13,8 +13,7 @@
 #'   \code{coordinate_matrix}.
 #' }
 #' 
-#' @examples
-#' 
+#' @export
 
 getSpectralCoordinates <- function(A, n_eigen_vectors = 0){ 
   diag(A) <- 0

@@ -1,11 +1,11 @@
 #' 
-#' computeAvgDBIndexSpectral
+#' computeAvgDBIndexCosUMAP
 #' 
 #' Internal function to compute tightness of gene set when probing for fishability
 #' 
-computeAvgDBIndexSpectral <- function(bait_genes, exp_mat, method, 
-                                      k = 2, alpha = 5, n_rounds = 50){
-  
+computeAvgDBIndexCosUMAP <- function(bait_genes, exp_mat, method, 
+                                  k = 2, alpha = 5, n_rounds = 50, 
+                                  n_neighbors = 15){
   # make sure the bait genes are represented 
   bait_genes <- bait_genes[bait_genes %in% rownames(exp_mat)] %>%
     as.character()
@@ -22,13 +22,11 @@ computeAvgDBIndexSpectral <- function(bait_genes, exp_mat, method,
                            size = length(bait_genes) * alpha)
       
       # get correlation matrix for those genes
-      cor_subset <- cor(t(exp_mat[c(bait_genes, rand_genes), ]) %>% as.matrix(),
-                        method = method)
+      cor_subset <- cosineSimMatrix(exp_mat[c(bait_genes, rand_genes), ] %>% 
+                                      as.matrix())
       
       # get coordinates for spectral clustering
-      rs <- getSpectralCoordinates(cor_subset, k)
-      
-      coordinates <- rs[['coordinates']]
+      coordinates <- getUMAPCoordinates(cor_subset, k, n_neighbors)
       
       # compute modified DB index, first compute centroids of clusters
       centroids <- rbind(Rfast::colMedians(coordinates[bait_genes, ]),
@@ -41,9 +39,9 @@ computeAvgDBIndexSpectral <- function(bait_genes, exp_mat, method,
         median()
       
       # compute index
-      avg_bait_dist / (Rfast::Dist(centroids, vector = TRUE) %>% as.numeric())
-    }
-  
+      avg_bait_dist / 
+        sqrt((Rfast::Dist(centroids, vector = TRUE) %>% as.numeric()))
+    } 
   
   return(bait_tightness)
 }

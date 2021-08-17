@@ -33,12 +33,22 @@ probeFishabilityUMAP <- function(exp_mat, potential_bait, n_rounds, alpha,
   round <- 1
   
   # check tightness of whole set
-  db_index <- computeAvgDBIndexUMAP(potential_bait, exp_mat, 
-                                    n_rounds = n_rounds, 
-                                    alpha = alpha, 
-                                    n_neighbors = n_neighbors,
-                                    method = method) %>%
-    mean()
+  if(method == "cosine"){
+    db_index <- computeAvgDBIndexCosUMAP(potential_bait, exp_mat, 
+                                         n_rounds = n_rounds, 
+                                         alpha = alpha, 
+                                         n_neighbors = n_neighbors,
+                                         method = method) %>%
+      mean()
+  }else{
+    db_index <- computeAvgDBIndexUMAP(potential_bait, exp_mat, 
+                                      n_rounds = n_rounds, 
+                                      alpha = alpha, 
+                                      n_neighbors = n_neighbors,
+                                      method = method) %>%
+      mean()
+  }
+  
   
   if(db_index < min_tightness) {
     continue_processing <- FALSE

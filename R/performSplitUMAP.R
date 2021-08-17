@@ -6,8 +6,12 @@
 #' 
 performSplitUMAP <- function(potential_bait, exp_mat, n_rounds, round, alpha,
                                  n_neighbors, min_genes, method) {
-  cor_mat <- cor(t(exp_mat[potential_bait, ]) %>% as.matrix(), 
-                 method = method)
+  if(method == "cosine"){
+    cor_mat <- cosineSimMatrix(exp_mat[potential_bait, ] %>% as.matrix())
+  }else{
+    cor_mat <- cor(t(exp_mat[potential_bait, ]) %>% as.matrix(),
+                   method = method)
+  }
   
   # cluster the potential bait
   num_clust <- 2
@@ -40,10 +44,20 @@ performSplitUMAP <- function(potential_bait, exp_mat, n_rounds, round, alpha,
     db_index_vec <- rep(NA, nrow(eigen_space))
   }else{
     db_index <- sapply(1:length(genes_in_clust), function(k){
-      computeAvgDBIndexUMAP(genes_in_clust[[k]], exp_mat, n_rounds = n_rounds, 
-                                alpha = alpha, n_neighbors = n_neighbors,
-                                method = method) %>%
-        mean()
+      if(method == "cosine"){
+        tmp <- computeAvgDBIndexCosUMAP(genes_in_clust[[k]], exp_mat, 
+                                            n_rounds = n_rounds, 
+                                            alpha = alpha,
+                                            method = method) %>%
+          mean()
+      }else{
+        tmp <- computeAvgDBIndexUMAP(genes_in_clust[[k]], exp_mat, 
+                                         n_rounds = n_rounds, 
+                                         alpha = alpha,
+                                         method = method) %>%
+          mean()
+      }
+      tmp
     })    
     
     # return data.frame that has the DB index, cluster and genes in cluster 

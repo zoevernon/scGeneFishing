@@ -1,9 +1,9 @@
 #' 
-#' computeAvgDBIndexSpectral
+#' computeAvgDBIndexCosSpectral
 #' 
 #' Internal function to compute tightness of gene set when probing for fishability
 #' 
-computeAvgDBIndexSpectral <- function(bait_genes, exp_mat, method, 
+computeAvgDBIndexCosSpectral <- function(bait_genes, exp_mat, method, 
                                       k = 2, alpha = 5, n_rounds = 50){
   
   # make sure the bait genes are represented 
@@ -22,8 +22,8 @@ computeAvgDBIndexSpectral <- function(bait_genes, exp_mat, method,
                            size = length(bait_genes) * alpha)
       
       # get correlation matrix for those genes
-      cor_subset <- cor(t(exp_mat[c(bait_genes, rand_genes), ]) %>% as.matrix(),
-                        method = method)
+      cor_subset <- cosineSimMatrix(exp_mat[c(bait_genes, rand_genes), ] %>% 
+                                      as.matrix())
       
       # get coordinates for spectral clustering
       rs <- getSpectralCoordinates(cor_subset, k)

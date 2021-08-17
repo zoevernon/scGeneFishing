@@ -35,7 +35,17 @@
 #' @param method input to \code{cor()} function telling what type of correlation
 #' to use. Defaults to spearman. 
 #' 
-#' @return A data.frame with the capture frequency rate for all genes
+#' @return A list with the following items 
+#' \itemize{
+#'   \item \code{results}: data.frame with the capture frequency rate for all
+#'   genes. 
+#'   \item \code{fished_genes}: vector of fished out genes (includes bait genes).
+#'   \item \code{CFR_cutoff}: cutoff on CFR that was used to define the fished
+#'   out gene set.  One can always choose their own cutoff and determine fished
+#'   out genes from the \code{results} data.frame. 
+#'   \item \code{bait}: vector of bait genes that were used for doing the GeneFishing.
+#'   \item \code{parameters}: list of parameters used in the fishing.  
+#' }
 #' 
 #' @examples
 #' 
@@ -48,16 +58,18 @@
 geneFishing <- function(X, bait_genes, alpha = 5, fishing_rounds = 1000, 
                         k = 2, min_tightness = 0.5, n_probing_rounds = 100, umap = TRUE,
                         ncores = 2, min_bait_genes = 5, bait_index = 1, 
-                        method = c("spearman", "pearson", "kendall")){
+                        method = c("spearman", "pearson", "cosine",
+                                   "euclidean",  "maximum", "manhattan", 
+                                   "canberra", "binary", "minkowski")){
   
   doParallel::registerDoParallel(ncores)
   
   # check correlation method provided is correct 
   method <- match.arg(method)
-  if(method == "kendall"){
-    message(paste0("Using kendall rank correlation is slow.",
-                   " We suggest stopping and setting method to spearman or pearson."))
-  }
+  using_dist <- ifelse(method %in% c("euclidean", "maximum", "manhattan", 
+                                     "canberra", "binary", "minkowski"), 
+                       TRUE, FALSE)
+  
   # assertion to make sure the entry is a matrix, sparse matrix or sce
   assertthat::assert_that(
     is.matrix(X) | any(class(X) %in% c("SingleCellExperiment", "dgCMatrix", 
@@ -73,6 +85,16 @@ geneFishing <- function(X, bait_genes, alpha = 5, fishing_rounds = 1000,
     X_sce <- X
     X <- assay(X, expr_values = "logcounts")
   }
+  
+  # check that there are alpha * length(bait_genes) in the data
+  assertthat::assert_that(
+    (length(bait_genes) * alpha) <= (nrow(X) - length(bait_genes)), 
+    msg = paste0("There are not enough genes (rows) provided.  Need to have ", 
+                 "at least alpha * length(bait_genes) rows in X."))
+  
+  # needs to be more than 1 column
+  assertthat::assert_that(
+    ncol(X) > 1, msg = "X needs to have more than 1 column")
   
   # remove any rows and columns that are all 0 
   all_zero_rows <- which(rowSums(X) == 0)
@@ -126,36 +148,71 @@ geneFishing <- function(X, bait_genes, alpha = 5, fishing_rounds = 1000,
   # check what type of data was inputted
   # if user inputted bait not from probeFishability, make sure that the 
   # provided bait set is tight enough
+  # note there is this long ifelse statement that calls different DB index 
+  # functions because it is slower to have the ifelse statements inside the loop
+  # that computes the correlation matrix which is in that function
   if(used_probe_output == FALSE){
-    db_index <- ifelse(umap, 
-                       computeAvgDBIndexUMAP(bait_genes, X, 
+    if(using_dist){
+      db_index <- computeAvgDBIndexDist(bait_genes, X, 
+                                       k = k,
+                                       n_rounds = n_probing_rounds, 
+                                       alpha = alpha,
+                                       method = method) %>% mean()
+    }else if(method == "cosine"){
+      if(umap){
+        db_index <- computeAvgDBIndexCosUMAP(bait_genes, X, 
                                              k = k,
                                              n_rounds = n_probing_rounds, 
                                              alpha = alpha,
-                                             method = method) %>%
-                         mean(),
-                       computeAvgDBIndexSpectral(bait_genes, X, 
+                                             method = method) %>% mean()
+      }else{
+        db_index <- computeAvgDBIndexCosSpectral(bait_genes, X, 
                                                  k = k,
                                                  n_rounds = n_probing_rounds, 
                                                  alpha = alpha,
-                                                 method = method) %>%
-                         mean())
-    
+                                                 method = method) %>% mean()
+      }
+    }else if(umap){
+      db_index <- computeAvgDBIndexUMAP(bait_genes, X, 
+                                        k = k,
+                                        n_rounds = n_probing_rounds, 
+                                        alpha = alpha,
+                                        method = method) %>% mean()
+    }else{
+      db_index <- computeAvgDBIndexSpectral(bait_genes, X, 
+                                            k = k,
+                                            n_rounds = n_probing_rounds, 
+                                            alpha = alpha,
+                                            method = method) %>% mean()
+    }
+
     # check that the bait is tight enough
-    assertthat::assert_that(db_index < min_tightness, msg = paste(
-      "Inputted bait is", round(db_index, 2), "which is less than min_tightness,", 
-      "consider using probeFishability().", 
-      "\nYou can also increase min_tightness, and use the same bait.\n"))
+    assertthat::assert_that(db_index < min_tightness, msg = paste0(
+      "Inputted bait has tightness less than min_tightness, ", 
+      "consider using probeFishability function. ", 
+      "\nYou can also increase min_tightness, and try using the same bait.\n"))
   }
   
   # do gene fishing in UMAP 
-  if(umap){
+  if(using_dist){
+    fish_freq_df <- geneFishingDist(X, bait_genes, pool_genes,
+                                    alpha, fishing_rounds, k, method)
+  }else if(method == "cosine"){
+    if(umap){
+      fish_freq_df <- geneFishingCosUMAP(X, bait_genes, pool_genes,
+                                         alpha, fishing_rounds, k, method)
+    }else{
+      fish_freq_df <- geneFishingCosSpectral(X, bait_genes, pool_genes,
+                                             alpha, fishing_rounds, k, method)
+    }
+  }else if(umap){
     fish_freq_df <- geneFishingUMAP(X, bait_genes, pool_genes,
                                     alpha, fishing_rounds, k, method)
   }else{
     fish_freq_df <- geneFishingSpectral(X, bait_genes, pool_genes,
                                         alpha, fishing_rounds, k, method)
   }
+  
   
   # automatically select cutoff
   cutoff <- getCutoff(fish_freq_df$CFR, 
