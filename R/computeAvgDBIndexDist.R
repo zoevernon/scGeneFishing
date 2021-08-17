@@ -16,7 +16,7 @@ computeAvgDBIndexDist <- function(bait_genes, exp_mat, method,
   
   # and across different samples of random genes
   bait_tightness <- 
-    foreach(i = 1:n_rounds) %dopar% {
+    foreach(i = 1:n_rounds, .combine = c) %dopar% {
       # sample random genes 
       rand_genes <- sample(pool_genes, 
                            size = length(bait_genes) * alpha)
@@ -27,6 +27,7 @@ computeAvgDBIndexDist <- function(bait_genes, exp_mat, method,
       
       # get coordinates for spectral clustering
       rs <- getSpectralCoordinates(1 / (dist_subset + 1), k)
+      
       
       coordinates <- rs[['coordinates']]
       
