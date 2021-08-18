@@ -28,7 +28,6 @@ computeAvgDBIndexDist <- function(bait_genes, exp_mat, method,
       # get coordinates for spectral clustering
       rs <- getSpectralCoordinates(1 / (dist_subset + 1), k)
       
-      
       coordinates <- rs[['coordinates']]
       
       # compute modified DB index, first compute centroids of clusters

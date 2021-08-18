@@ -144,6 +144,30 @@ probeFishability <- function(X, potential_bait, n_rounds = 100, alpha = 5,
   }
   
   
+  # make sure that the discovered bait don't cluster with too high of a 
+  # percentage of random genes (using 0.75) as a threshold
+  if(length(results$bait_sets) > 0){
+    rand_perct <- sapply(1:length(results$bait_sets), function(i){
+      checkRandGeneClusterPercentage(results, i, n_rounds, alpha)
+    })
+    
+    # remove some bait sets that have more than 80% of random genes clustering
+    # with the bait
+    to_remove <- which(rand_perct > 0.8) 
+    if(length(to_remove) == length(results$bait_sets)){
+      results$best_bait <- NULL
+      results$bait_sets <- NULL
+      results$bait_info <- NULL
+    }else if(length(to_remove) > 0){
+      results$bait_sets <- results$bait_sets[-to_remove]
+      results$bait_info <- results$bait_info[-to_remove, ]
+      
+      # change best bait if necessary 
+      results$best_bait <- results$bait_sets[[1]]
+      results$bait_info$bait_index <- 1:nrow(results$bait_info)
+    }
+  }
+
   return(results)
 }
 
@@ -154,7 +178,7 @@ print.gene_fishing_probe <- function(x, ...){
     cat(sort(x$best_bait)[1:5], ", ...\n\n")
     cat(paste("Found", nrow(x$bait_info) - 1, "additional bait sets.\n"))
   }else if(length(x$best_bait) == 0){
-    cat("No bait found, try again with higher min_tightness.\n")
+    cat("No bait found. You may want to try again with a different similarity measure.\n")
     cat("Note, it is not recommended to use min_tightness > 0.5.\n")
   }else{
     cat("Tightest bait set:\n")
@@ -168,7 +192,7 @@ print.gene_fishing_probe <- function(x, ...){
 plot.gene_fishing_probe <- function(x, alpha = 5, 
                                     bait_indices = "all", ...){
   if(length(x$best_bait) == 0){
-    cat("No bait found, try again with higher min_tightness.\n")
+    cat("No bait found. You may want to try again with a different similarity measure.\n")
     cat("Note, it is not recommended to use min_tightness > 0.5.\n")
   }else{
     if(any(bait_indices == "all") | any(!bait_indices %in% 1:length(x$bait_sets))){
