@@ -5,7 +5,7 @@
 #' potential bait set by doing clustering with k = 2.
 #' 
 performSplitSpectral <- function(potential_bait, exp_mat, n_rounds, round, 
-                                     alpha, method) {
+                                     alpha, min_genes, method) {
   using_dist <- ifelse(method %in% c("euclidean", "maximum", "manhattan", 
                                      "canberra", "binary", "minkowski"), 
                        TRUE, FALSE)
@@ -35,31 +35,32 @@ performSplitSpectral <- function(potential_bait, exp_mat, n_rounds, round,
     eigen_space$gene[eigen_space$cluster == k]
   })
   
-  # check if any of the clusters only have one gene and remove
-  genes_in_clust <- genes_in_clust[sapply(genes_in_clust, length) > 1]
-  
   # compute DB index for each cluster
   db_index <- sapply(1:length(genes_in_clust), function(k){
-    if(using_dist){
-      tmp <- computeAvgDBIndexDist(genes_in_clust[[k]], exp_mat, 
-                                   n_rounds = n_rounds, 
-                                   alpha = alpha,
-                                   method = method) %>%
-        mean()
-    }else if(method == "cosine"){
-      tmp <- computeAvgDBIndexCosSpectral(genes_in_clust[[k]], exp_mat, 
-                                          n_rounds = n_rounds, 
-                                          alpha = alpha,
-                                          method = method) %>%
-        mean()
+    if(length(genes_in_clust[[k]]) < min_genes){
+      999
     }else{
-      tmp <- computeAvgDBIndexSpectral(genes_in_clust[[k]], exp_mat, 
-                                       n_rounds = n_rounds, 
-                                       alpha = alpha,
-                                       method = method) %>%
-        mean()
+      if(using_dist){
+        tmp <- computeAvgDBIndexDist(genes_in_clust[[k]], exp_mat, 
+                                     n_rounds = n_rounds, 
+                                     alpha = alpha,
+                                     method = method) %>%
+          mean()
+      }else if(method == "cosine"){
+        tmp <- computeAvgDBIndexCosSpectral(genes_in_clust[[k]], exp_mat, 
+                                            n_rounds = n_rounds, 
+                                            alpha = alpha,
+                                            method = method) %>%
+          mean()
+      }else{
+        tmp <- computeAvgDBIndexSpectral(genes_in_clust[[k]], exp_mat, 
+                                         n_rounds = n_rounds, 
+                                         alpha = alpha,
+                                         method = method) %>%
+          mean()
+      }
+      tmp
     }
-    tmp
   })    
   
   # return data.frame that has the DB index, cluster and genes in cluster 

@@ -153,11 +153,12 @@ probeFishability <- function(X, potential_bait, n_rounds = 100, alpha = 5,
     
     # remove some bait sets that have more than 80% of random genes clustering
     # with the bait
-    to_remove <- which(rand_perct > 0.8) 
+    to_remove <- which(rand_perct > 0.70) 
     if(length(to_remove) == length(results$bait_sets)){
       results$best_bait <- NULL
       results$bait_sets <- NULL
       results$bait_info <- NULL
+      results$rand_perct <- rand_perct
     }else if(length(to_remove) > 0){
       results$bait_sets <- results$bait_sets[-to_remove]
       results$bait_info <- results$bait_info[-to_remove, ]
@@ -165,6 +166,9 @@ probeFishability <- function(X, potential_bait, n_rounds = 100, alpha = 5,
       # change best bait if necessary 
       results$best_bait <- results$bait_sets[[1]]
       results$bait_info$bait_index <- 1:nrow(results$bait_info)
+      results$rand_perct <- rand_perct[-to_remove]
+    }else{
+      results$rand_perct <- rand_perct
     }
   }
 

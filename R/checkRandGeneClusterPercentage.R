@@ -36,10 +36,13 @@ checkRandGeneClusterPercentage <- function(results, i, n_rounds, alpha, k = 2){
       }
       
       # get coordinates for spectral clustering
-      rs <- getSpectralCoordinates(cor_mat, k)
-      
-      coordinates <- rs[['coordinates']]
-      
+      if(results$type == "UMAP"){
+        coordinates <- getUMAPCoordinates(cor_mat, k)
+      }else{
+        rs <- getSpectralCoordinates(cor_mat, k)
+        coordinates <- rs[['coordinates']]
+      }
+
       # do k-means on the coordinates from the spectral clustering
       kmeans_obj <- 
         LICORS::kmeanspp(data = coordinates, k = k)
