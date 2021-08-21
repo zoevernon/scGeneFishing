@@ -39,14 +39,14 @@ probeFishabilityUMAP <- function(exp_mat, potential_bait, n_rounds, alpha,
                                          alpha = alpha, 
                                          n_neighbors = n_neighbors,
                                          method = method) %>%
-      mean()
+      mean(na.rm = TRUE)
   }else{
     db_index <- computeAvgDBIndexUMAP(potential_bait, exp_mat, 
                                       n_rounds = n_rounds, 
                                       alpha = alpha, 
                                       n_neighbors = n_neighbors,
                                       method = method) %>%
-      mean()
+      mean(na.rm = TRUE)
   }
   
   

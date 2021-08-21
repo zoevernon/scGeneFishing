@@ -42,19 +42,19 @@ probeFishabilitySpectral <- function(exp_mat, potential_bait, n_rounds, alpha,
                                           n_rounds = n_rounds, 
                                           alpha = alpha,
                                           method = method) %>%
-      mean()
+      mean(na.rm = TRUE)
   }else if(method == "cosine"){
     db_index <- computeAvgDBIndexCosSpectral(potential_bait, exp_mat, 
                                              n_rounds = n_rounds, 
                                              alpha = alpha,
                                              method = method) %>%
-      mean()
+      mean(na.rm = TRUE)
   }else{
     db_index <- computeAvgDBIndexSpectral(potential_bait, exp_mat, 
                                           n_rounds = n_rounds, 
                                           alpha = alpha,
                                           method = method) %>%
-      mean()
+      mean(na.rm = TRUE)
   }
   
   

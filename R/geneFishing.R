@@ -157,33 +157,37 @@ geneFishing <- function(X, bait_genes, alpha = 5, fishing_rounds = 1000,
                                        k = k,
                                        n_rounds = n_probing_rounds, 
                                        alpha = alpha,
-                                       method = method) %>% mean()
+                                       method = method) %>% mean(na.rm = TRUE)
     }else if(method == "cosine"){
       if(umap){
         db_index <- computeAvgDBIndexCosUMAP(bait_genes, X, 
                                              k = k,
                                              n_rounds = n_probing_rounds, 
                                              alpha = alpha,
-                                             method = method) %>% mean()
+                                             method = method) %>% 
+          mean(na.rm = TRUE)
       }else{
         db_index <- computeAvgDBIndexCosSpectral(bait_genes, X, 
                                                  k = k,
                                                  n_rounds = n_probing_rounds, 
                                                  alpha = alpha,
-                                                 method = method) %>% mean()
+                                                 method = method) %>% 
+          mean(na.rm = TRUE)
       }
     }else if(umap){
       db_index <- computeAvgDBIndexUMAP(bait_genes, X, 
                                         k = k,
                                         n_rounds = n_probing_rounds, 
                                         alpha = alpha,
-                                        method = method) %>% mean()
+                                        method = method) %>% 
+        mean(na.rm = TRUE)
     }else{
       db_index <- computeAvgDBIndexSpectral(bait_genes, X, 
                                             k = k,
                                             n_rounds = n_probing_rounds, 
                                             alpha = alpha,
-                                            method = method) %>% mean()
+                                            method = method) %>% 
+        mean(na.rm = TRUE)
     }
 
     # check that the bait is tight enough

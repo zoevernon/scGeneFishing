@@ -45,19 +45,19 @@ performSplitSpectral <- function(potential_bait, exp_mat, n_rounds, round,
                                      n_rounds = n_rounds, 
                                      alpha = alpha,
                                      method = method) %>%
-          mean()
+          mean(na.rm = TRUE)
       }else if(method == "cosine"){
         tmp <- computeAvgDBIndexCosSpectral(genes_in_clust[[k]], exp_mat, 
                                             n_rounds = n_rounds, 
                                             alpha = alpha,
                                             method = method) %>%
-          mean()
+          mean(na.rm = TRUE)
       }else{
         tmp <- computeAvgDBIndexSpectral(genes_in_clust[[k]], exp_mat, 
                                          n_rounds = n_rounds, 
                                          alpha = alpha,
                                          method = method) %>%
-          mean()
+          mean(na.rm = TRUE)
       }
       tmp
     }

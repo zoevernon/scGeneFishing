@@ -45,13 +45,13 @@ performSplitUMAP <- function(potential_bait, exp_mat, n_rounds, round, alpha,
                                         n_rounds = n_rounds, 
                                         alpha = alpha,
                                         method = method) %>%
-          mean()
+          mean(na.rm = TRUE)
       }else{
         tmp <- computeAvgDBIndexUMAP(genes_in_clust[[k]], exp_mat, 
                                      n_rounds = n_rounds, 
                                      alpha = alpha,
                                      method = method) %>%
-          mean()
+          mean(na.rm = TRUE)
       }
       tmp
     }
