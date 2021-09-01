@@ -4,7 +4,15 @@
 \alias{performSplitSpectral}
 \title{performSplitSpectral}
 \usage{
-performSplitSpectral(potential_bait, exp_mat, n_rounds, round, alpha, method)
+performSplitSpectral(
+  potential_bait,
+  exp_mat,
+  n_rounds,
+  round,
+  alpha,
+  min_genes,
+  method
+)
 }
 \description{
 Internal function for probing fishability of a set of genes to split up

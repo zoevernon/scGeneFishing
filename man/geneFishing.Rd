@@ -16,7 +16,8 @@ geneFishing(
   ncores = 2,
   min_bait_genes = 5,
   bait_index = 1,
-  method = c("spearman", "pearson", "kendall")
+  method = c("spearman", "pearson", "cosine", "euclidean", "maximum", "manhattan",
+    "canberra", "binary", "minkowski")
 )
 }
 \arguments{
@@ -64,7 +65,17 @@ use.  Defaults to 1, which corresponds to the tightest bait.}
 to use. Defaults to spearman.}
 }
 \value{
-A data.frame with the capture frequency rate for all genes
+A list with the following items
+\itemize{
+\item \code{results}: data.frame with the capture frequency rate for all
+genes.
+\item \code{fished_genes}: vector of fished out genes (includes bait genes).
+\item \code{CFR_cutoff}: cutoff on CFR that was used to define the fished
+out gene set.  One can always choose their own cutoff and determine fished
+out genes from the \code{results} data.frame.
+\item \code{bait}: vector of bait genes that were used for doing the GeneFishing.
+\item \code{parameters}: list of parameters used in the fishing.
+}
 }
 \description{
 Function to perform gene fishing on a gene expression matrix.

@@ -14,7 +14,8 @@ probeFishability(
   n_neighbors = 15,
   umap = TRUE,
   ncores = 2,
-  method = c("spearman", "pearson", "kendall")
+  method = c("spearman", "pearson", "cosine", "euclidean", "maximum", "manhattan",
+    "canberra", "binary", "minkowski")
 )
 }
 \arguments{

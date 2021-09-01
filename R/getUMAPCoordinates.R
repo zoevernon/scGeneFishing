@@ -7,7 +7,7 @@
 #' 
 #' @return \code{coordinate_matrix} - matrix of UMAP coordinates for each gene.
 #' 
-#' #' @export
+#' @export
 
 getUMAPCoordinates <- function(A, n_eigen_vectors = 0, n_neighbors = 15){ 
   diag(A) <- 0

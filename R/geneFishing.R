@@ -56,8 +56,9 @@
 #' @export
 
 geneFishing <- function(X, bait_genes, alpha = 5, fishing_rounds = 1000, 
-                        k = 2, min_tightness = 0.5, n_probing_rounds = 100, umap = TRUE,
-                        ncores = 2, min_bait_genes = 5, bait_index = 1, 
+                        k = 2, min_tightness = 0.5, n_probing_rounds = 100, 
+                        umap = TRUE, ncores = 2, min_bait_genes = 5, 
+                        bait_index = 1, 
                         method = c("spearman", "pearson", "cosine",
                                    "euclidean",  "maximum", "manhattan", 
                                    "canberra", "binary", "minkowski")){
@@ -114,9 +115,14 @@ geneFishing <- function(X, bait_genes, alpha = 5, fishing_rounds = 1000,
   # bait 
   if(class(bait_genes) == "gene_fishing_probe") {
     used_probe_output <- TRUE
+    if(length(bait_genes$bait_sets) > 1){
+      message(paste0("Bait genes provided from probeFishability. Using bait set ", 
+                     bait_index, ". To use a different bait set, change bait_index."))
+    }
+    
+    # update method 
+    method <- bait_genes$method
     bait_genes <- bait_genes$bait_sets[[bait_index]]
-    message(paste0("Bait genes provided from probeFishability. Using bait set ", 
-                   bait_index, ". To use a different bait set, change bait_index."))
   }else{
     used_probe_output <- FALSE
   }

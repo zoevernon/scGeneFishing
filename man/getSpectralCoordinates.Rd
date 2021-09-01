@@ -23,6 +23,3 @@ gene
 \description{
 Internal function to compute spectral coordinates from similarity matrix
 }
-\examples{
-
-}

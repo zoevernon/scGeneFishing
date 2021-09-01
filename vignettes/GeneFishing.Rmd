@@ -14,8 +14,82 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+## GeneFishing in simulated data
+We simulate a dataset with two clouds of data.  The smaller cloud has 100 points, 
+but we will say that we only know 20 of them belong to the group.  We will use
+GeneFishing to recover the remaining 85 genes from the group. 
+
+
+In the plot below we can see that in the first two features of ```X``` we have
+no separation between the bait gene cloud and non-bait gene cloud.
+```{r simulate_data, fig.height=4, fig.width=7}
 library(GeneFishing)
+library(MASS)
+library(tidyverse)
+
+set.seed(83)
+# generate two random clouds of data
+X <- rbind(mvrnorm(100, mu = sample(c(1:4), 10, replace = TRUE), 
+                   Sigma = diag(rep(0.25, 10))), 
+           mvrnorm(1000, mu = rep(1, 10), 
+                   Sigma = diag(rep(1, 10))))
+
+rownames(X) <- paste0("R", 1:nrow(X))
+
+# use 20 of the smaller cloud as "bait"
+bait <- sample(paste0("R", 1:100), 20)
+
+ggplot() + 
+  geom_point(aes(x = X[, 1], y = X[, 2], 
+                 color = ifelse(rownames(X) %in% bait, "bait", "non-bait"),
+                 shape = ifelse(rownames(X) %in% paste0("R", 1:100), 
+                                "bait cloud", "non-bait cloud")), 
+             alpha = 0.5) + 
+  theme_classic() + 
+  theme(legend.title = element_blank()) + 
+  scale_color_discrete(direction = -1) + scale_shape_discrete()
+```
+
+Instead of plotting the raw coordinates if we plot the spectral decomposition
+using euclidean distance to compute similarity we can see the bait genes separating
+from the non-bait.  GeneFishing leverages both the spectral decomposition and 
+subsampling to cluster data.
+
+```{r simulated_spectral_coordinates, fig.height=4, fig.width=7}
+plotSpectralCoordinates(X, bait, umap = FALSE, method = "euclidean")
+```
+
+### Do GeneFishing
+We can use ```GeneFishing``` to "fish-out" the 80 non-bait genes that are generated
+in the bait gene cloud.  In the plot below we see the desired fishing output, which
+show a small fraction of genes with capture frequency rate (CFR) close to 1 and 
+most genes with CFR close to 0.  A CFR of 1 indicates that in every round of GeneFishing
+that gene was in the cluster with the majority of the bait genes.
+
+```{r simulated_gf, fig.height=4, fig.width=7}
+fishing_results <- geneFishing(X, bait, method = "euclidean", alpha = 3,
+                               fishing_rounds = 100, n_probing_rounds = 50)
+
+plot(fishing_results)
+```
+
+We can also look at the fished out genes to see whether we recover the 80 genes
+which were generated in the same cloud as the non-bait genes are recovered, and
+how many genes in the other cloud are fished out (e.g. false-discoveries).  
+```{r gf_simulated_fished_genes, fig.height=4, fig.width=7}
+fished_genes <- fishing_results$fished_genes 
+
+# genes in bait gene cloud that are fished out (but were not originally 
+# labeled as bait)
+bait_cloud <- setdiff(paste0("R", 1:100), bait)
+intersect(fished_genes, bait_cloud) %>% length()
+
+# genes not in non-bait gene cloud but are still fished out
+intersect(fished_genes, paste0("R", 101:1100)) %>% length()
+```
+
+## GeneFishing in pancreas data
+```{r setup}
 data("pancreas")
 data("insulin_secretion")
 
@@ -23,26 +97,37 @@ data("insulin_secretion")
 head(pancreas[, 1:4])
 
 # GO term 
-insulin_secretion[1:6]
+insulin_secretion[1:6] 
 ```
 
 
 
-## Probe for bait sets 
-Search through ```insulin_secretion``` to find a subset of genes that can be used
-as bait in GeneFishing.  Note, that in order for this vingette to compute quickly
+### Probe for bait sets 
+
+We plot the spectral coordinates of all GO term genes in
+the data below.  We can see that these genes are not separating from the non-bait
+genes and thus GeneFishing with all GO term genes is not possible.
+
+```{r GO_plot, fig.width=7, fig.height=4}
+go_subset <- intersect(rownames(pancreas), insulin_secretion)
+plotSpectralCoordinates(pancreas, go_subset, alpha = 3, 
+                        umap = FALSE, method = "pearson")
+```
+
+Therefore we need to search through the  ```insulin_secretion``` GO term 
+to find a subset of genes that can be used as bait in GeneFishing.  
+
+Note, that in order for this vignette to compute quickly
 ```n_rounds = 10```, but in practice this should be at least 100.  
 
 ```{r probe_fishability}
-set.seed(3908)
-go_subset <- intersect(rownames(pancreas), insulin_secretion)
 baits <- probeFishability(pancreas, go_subset, umap = FALSE, n_rounds = 10,
-                          min_genes = 10)
+                          min_genes = 10, method = "pearson")
 baits
 ```
 
-Will randomly sample genes and plot discovered bait with those randomly sampled
-genes.  This shows two different random samples
+We plot the discovered bait with randomly sampled genes.  This shows two different 
+random samples:
 ```{r plot_probe_results1, fig.width=7, fig.height=4}
 plot(baits)
 ```
@@ -52,13 +137,17 @@ plot(baits)
 plot(baits)
 ```
 
+Notice that two of the discovered bait are not clustering with the other bait.  This
+is not problematic, because the GeneFishing algorithm looks for genes which cluster
+with the *majority* of the bait. 
 
-## Do GeneFishing
+### Do GeneFishing
 Again, in practice one should do more than 25 rounds of GeneFishing, however to 
 make the vignette compute in a reasonable amount of time we are only using 25
-here.  Additionally, you can pass the output of the previous function, 
+here.  You can pass the output of the previous function, 
 along with a index corresponding to the bait number you would like to do the 
-fishing for.  
+fishing for.  In this case the provided similarity ```method``` will be ignored
+and the method from ```probeFishability``` will be used.
 
 ```{r gene_fishing}
 fishing_results <- geneFishing(pancreas,
@@ -68,13 +157,17 @@ fishing_results <- geneFishing(pancreas,
 fishing_results
 ```
 
-Alternatively you can directly pass a vector of genes as bait.
+Alternatively you can directly pass a vector of genes as bait, in this case you
+will need to provide the similarity ```method``` if you don't want to use the default 
+of Spearman's correlation.  
+
 ```{r eval = FALSE}
 # not run 
 fishing_results <- geneFishing(pancreas,
                                baits$best_bait,
                                fishing_rounds = 25,
-                               umap = FALSE)
+                               umap = FALSE,
+                               method = "pearson")
 ```
 
 
@@ -90,7 +183,8 @@ fishing_results_k3 <- geneFishing(pancreas,
                                   baits$best_bait,
                                   fishing_rounds = 25,
                                   k = 3,
-                                  umap = FALSE)
+                                  umap = FALSE,
+                                  method = "pearson")
 fishing_results_k3
 ```
 
