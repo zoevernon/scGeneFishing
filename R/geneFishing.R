@@ -27,7 +27,7 @@
 #' average of these tightness measures are taken over \code{n_probing_rounds} random samples
 #' of genes.  
 #' @param umap indicator of whether the computation should be done using UMAP.
-#' The default is TRUE.  When umap = FALSE it will use spectral coordinates. 
+#' The default is FALSE.  When umap = TRUE the computation will take longer.
 #' @param ncores number of cores to do parallel computation on if parallel = TRUE.
 #' @param min_bait_genes minimum number of genes for bait set to be viable. 
 #' @param bait_index index of \code{bait_sets} list from \code{probeFishability()}, to 

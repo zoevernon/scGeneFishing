@@ -64,6 +64,13 @@ getCutoff <- function(X,
     mu <- (left_ub + right_lb) / 2
   }
 
+  # check if there are more than 1 value on either side of mu, otherwise it will
+  # fail 
+  if(length(unique(X[X <= mu])) < 2 | length(unique(X[X > mu])) < 2){
+    # in that case we will return a cutoff will all genes that are above mu
+    return(max(X) - unit)
+  }
+  
   n_X <- length(X)
   count_X <- table(sort(X))
   unique_X <- unique(sort(X))

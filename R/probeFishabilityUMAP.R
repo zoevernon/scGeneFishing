@@ -133,35 +133,36 @@ probeFishabilityUMAP <- function(exp_mat, potential_bait, n_rounds, alpha,
     bait_final <- lapply(1:length(bait), function(i){
       list(bait = bait[[i]], tightness = tightness_index[[i]])
     })
-  }else if(length(bait) == 0){
-    bait_final <- NULL
-  }else{
+  }else if(length(bait) == 1){
     bait_final <- list(list(bait = bait[[1]], 
                             tightness = tightness_index[[1]]))
+  }else{
+    bait_final <- bait
   }
   
-  # save a data frame with the tightness and number of genes of each bait 
-  # set
-  if(length(bait) == 0){
-    best_final <- NULL
-    bait_df <- NULL
-  }else{
+  # reorder original bait list based on tightness
+  if(length(bait_final) > 0){
+    # save a data frame with the tightness and number of genes of each bait 
+    # set
     number <- sapply(1:length(bait_final), function(i) length(bait_final[[i]]$bait))
     tightness <- sapply(1:length(bait_final), function(i) bait_final[[i]]$tightness)
     bait_df <- data.frame(bait_index = 1:length(number),
                           bait_length = number,
                           tightness) %>% arrange(tightness)
     
-    # reorder original bait list based on tightness
     bait_final <- lapply(1:nrow(bait_df), function(i){
       bait_final[[bait_df$bait_index[i]]]$bait
     })
     
     # fix bait ID (bait now in order from tightest to least tight)
     bait_df$bait_index <- 1:nrow(bait_df)
+  }else{
+    bait_final <- list(NULL)
+    bait_df <- NULL
+    warning("No bait discovered.")
   }
   
-  
+ 
   # save output as a class to be used for plotting etc. 
   final_output <-list(best_bait = bait_final[[1]], 
                       bait_sets = bait_final, 

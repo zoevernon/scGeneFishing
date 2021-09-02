@@ -22,9 +22,10 @@
 #' of genes.  
 #' @param min_genes minimum size that the bait set can be.  The default is set to
 #' 5.  
-#' @param umap indicator of whether to do UMAP on spectral coordinates for 
-#' clustering.  Default is TRUE, which is recommended for single cell data, despite
-#' a reduction in speed.
+#' @param umap indicator of whether the computation should be done using UMAP.
+#' The default is FALSE.  When umap = TRUE the computation will take longer. 
+#' However, if you cannot find good bait with umap = FALSE, you may want to try
+#' with umap = TRUE.
 #' @param ncores number of cores to do parallel computation on if parallel = TRUE.
 #' @param method input to \code{cor()} function telling what type of correlation
 #' to use. Defaults to spearman. 

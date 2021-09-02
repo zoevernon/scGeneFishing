@@ -1,20 +1,18 @@
 # error handling
 test_that("geneFishing returns errors when appropriate", {
-  expect_error(geneFishing("A", "B"))
+  expect_error(probeFishability("A", "B"))
   
   # no overlap in gene names with row names of matrix 
   X <- matrix(rnorm(200), nrow = 20)
-  expect_error(geneFishing(X, c("A", "B", "C", "D"), alpha = 3, 
-                           min_bait_genes = 5), 
-               paste0("The interesection of bait_genes and row names of ",
-                      "expression matrix is less than ", 5, 
-                      "\nConsider lowering min_bait_genes or using different bait."),
+  expect_error(probeFishability(X, c("A", "B", "C", "D"), alpha = 3, 
+                                min_genes = 5), 
+               paste0("No intersection of potential_bait and row names of expression matrix"),
                fixed = TRUE)
   
   # non-matrix input
   X <- data.frame(matrix(rnorm(200), nrow = 20))
   rownames(X) <- paste0("R", 1:20)
-  expect_error(geneFishing(X, paste0("R", 1:5), alpha = 3),
+  expect_error(probeFishability(X, paste0("R", 1:5), alpha = 3),
                paste0("X must be a matrix, or in one of the following classes:\n", 
                       "SingleCellExperiment, dgCMatrix, dgTMatrix, dgRMatrix, dgeMatrix"),
                fixed = TRUE)
@@ -22,26 +20,23 @@ test_that("geneFishing returns errors when appropriate", {
   # get error when there are not enough genes 
   X <- matrix(rnorm(200), nrow = 20)
   rownames(X) <- paste0("R", 1:20)
-  expect_error(geneFishing(X, paste0("R", 1:5), alpha = 5),
+  expect_error(probeFishability(X, paste0("R", 1:5), alpha = 5),
                paste0("There are not enough genes (rows) provided.  Need to have ", 
-                      "at least alpha * length(bait_genes) rows in X."),
+                      "at least alpha * length(potential_bait) rows in X."),
                fixed = TRUE)
   
   # produce error when there is only one column
   X <- matrix(rnorm(200), nrow = 200)
   rownames(X) <- paste0("R", 1:200)
-  expect_error(geneFishing(X, paste0("R", 1:5), alpha = 3, umap = FALSE), 
+  expect_error(probeFishability(X, paste0("R", 1:5), alpha = 3, umap = FALSE), 
                "X needs to have more than 1 column",
                fixed = TRUE)
   
-  # get error when the bait is not tight enough
+  # get warning if there is no bait
   X <- matrix(rnorm(200 * 10), nrow = 200)
   rownames(X) <- paste0("R", 1:200)
-  expect_error(geneFishing(X, paste0("R", 1:5), alpha = 3, umap = FALSE),
-               paste0(
-                 "Inputted bait has tightness less than min_tightness, ", 
-                 "consider using probeFishability function. ", 
-                 "\nYou can also increase min_tightness, and try using the same bait.\n"),
+  expect_warning(probeFishability(X, paste0("R", 1:5), alpha = 3, umap = FALSE),
+               "No bait discovered.",
                fixed = TRUE)
   
 })
@@ -58,17 +53,15 @@ test_that("geneFishing works with valid input for spectral coordinates", {
   rownames(X) <- paste0("R", 1:nrow(X))
   
   # use first 20 genes as bait
-  bait <- paste0("R", 1:20)
+  bait <- paste0("R", 1:10)
   
   # euclidean distance
-  output <- geneFishing(X, bait, alpha = 5, method = "euclidean", umap = FALSE, 
-                        fishing_rounds = 50, n_probing_rounds = 50)
+  output <- probeFishability(X, bait, alpha = 5, method = "euclidean", umap = FALSE, 
+                             n_rounds = 50)
   expect_type(output, "list")
-  expect_s3_class(output, "gene_fishing")
-  expect_equal(names(output), c("results", "fished_genes", 
-                                "CFR_cutoff", "bait", "parameters"))
-  # check all genes are in the output
-  expect_equal(length(intersect(rownames(X), output$results$gene_id)), nrow(X))
+  expect_s3_class(output, "gene_fishing_probe")
+  expect_equal(names(output), c("best_bait", "bait_sets", "bait_info", "X",  
+                                "method", "type", "rand_perct"))
   # check that we are returning a plot
   expect_s3_class(plot(output), c("gg", "ggplot"))
   
@@ -95,41 +88,35 @@ test_that("geneFishing works with valid input for spectral coordinates", {
   X <- t(X)[, 1:50]
   rownames(X) <- paste0("R", 1:nrow(X))
   
-  # use first 20 genes as bait
-  bait <- paste0("R", 1:7)
+  # use first 20 genes as potential bait
+  bait <- paste0("R", 1:20)
   
-  output <- geneFishing(X, bait, alpha = 5, method = "cosine", umap = FALSE, 
-                        fishing_rounds = 50, n_probing_rounds = 50) 
+  output <- probeFishability(X, bait, alpha = 3, method = "cosine", umap = FALSE, 
+                        n_rounds = 50) 
   expect_type(output, "list")
-  expect_s3_class(output, "gene_fishing")
-  expect_equal(names(output), c("results", "fished_genes", 
-                                "CFR_cutoff", "bait", "parameters"))
-  # check all genes are in the output
-  expect_equal(length(intersect(rownames(X), output$results$gene_id)), nrow(X))
+  expect_s3_class(output, "gene_fishing_probe")
+  expect_equal(names(output), c("best_bait", "bait_sets", "bait_info", "X",  
+                                "method", "type", "rand_perct"))
   # check that we are returning a plot
   expect_s3_class(plot(output), c("gg", "ggplot"))
   
   # spearman 
-  output <- geneFishing(X, bait, alpha = 5, method = "spearman", umap = FALSE, 
-                        fishing_rounds = 50, n_probing_rounds = 50) 
+  output <- probeFishability(X, bait, alpha = 3, method = "spearman", umap = FALSE, 
+                             n_rounds = 50) 
   expect_type(output, "list")
-  expect_s3_class(output, "gene_fishing")
-  expect_equal(names(output), c("results", "fished_genes", 
-                                "CFR_cutoff", "bait", "parameters"))
-  # check all genes are in the output
-  expect_equal(length(intersect(rownames(X), output$results$gene_id)), nrow(X))
+  expect_s3_class(output, "gene_fishing_probe")
+  expect_equal(names(output), c("best_bait", "bait_sets", "bait_info", "X",  
+                                "method", "type", "rand_perct"))
   # check that we are returning a plot
   expect_s3_class(plot(output), c("gg", "ggplot"))
   
   # pearson
-  output <- geneFishing(X, bait, alpha = 5, method = "pearson", umap = FALSE, 
-                        fishing_rounds = 50, n_probing_rounds = 50) 
+  output <- probeFishability(X, bait, alpha = 3, method = "pearson", umap = FALSE, 
+                             n_rounds = 50) 
   expect_type(output, "list")
-  expect_s3_class(output, "gene_fishing")
-  expect_equal(names(output), c("results", "fished_genes", 
-                                "CFR_cutoff", "bait", "parameters"))
-  # check all genes are in the output
-  expect_equal(length(intersect(rownames(X), output$results$gene_id)), nrow(X))
+  expect_s3_class(output, "gene_fishing_probe")
+  expect_equal(names(output), c("best_bait", "bait_sets", "bait_info", "X",  
+                                "method", "type", "rand_perct"))
   # check that we are returning a plot
   expect_s3_class(plot(output), c("gg", "ggplot"))
   
@@ -159,41 +146,35 @@ test_that("geneFishing works with valid input for UMAP coordinates", {
   X <- t(X)[, 1:50]
   rownames(X) <- paste0("R", 1:nrow(X))
   
-  # use first 20 genes as bait
-  bait <- paste0("R", 1:7)
+  # use first 20 genes as potential bait
+  bait <- paste0("R", 1:20)
   
-  output <- geneFishing(X, bait, alpha = 5, method = "cosine", umap = TRUE, 
-                        fishing_rounds = 50, n_probing_rounds = 50) 
+  output <- probeFishability(X, bait, alpha = 3, method = "cosine", umap = TRUE, 
+                             n_rounds = 50) 
   expect_type(output, "list")
-  expect_s3_class(output, "gene_fishing")
-  expect_equal(names(output), c("results", "fished_genes", 
-                                "CFR_cutoff", "bait", "parameters"))
-  # check all genes are in the output
-  expect_equal(length(intersect(rownames(X), output$results$gene_id)), nrow(X))
+  expect_s3_class(output, "gene_fishing_probe")
+  expect_equal(names(output), c("best_bait", "bait_sets", "bait_info", "X",  
+                                "method", "type", "rand_perct"))
   # check that we are returning a plot
   expect_s3_class(plot(output), c("gg", "ggplot"))
   
   # spearman 
-  output <- geneFishing(X, bait, alpha = 5, method = "spearman", umap = TRUE, 
-                        fishing_rounds = 50, n_probing_rounds = 50) 
+  output <- probeFishability(X, bait, alpha = 3, method = "spearman", umap = TRUE, 
+                             n_rounds = 50) 
   expect_type(output, "list")
-  expect_s3_class(output, "gene_fishing")
-  expect_equal(names(output), c("results", "fished_genes", 
-                                "CFR_cutoff", "bait", "parameters"))
-  # check all genes are in the output
-  expect_equal(length(intersect(rownames(X), output$results$gene_id)), nrow(X))
+  expect_s3_class(output, "gene_fishing_probe")
+  expect_equal(names(output), c("best_bait", "bait_sets", "bait_info", "X",  
+                                "method", "type", "rand_perct"))
   # check that we are returning a plot
   expect_s3_class(plot(output), c("gg", "ggplot"))
   
   # pearson
-  output <- geneFishing(X, bait, alpha = 5, method = "pearson", umap = TRUE, 
-                        fishing_rounds = 50, n_probing_rounds = 50) 
+  output <- probeFishability(X, bait, alpha = 3, method = "pearson", umap = TRUE, 
+                             n_rounds = 50) 
   expect_type(output, "list")
-  expect_s3_class(output, "gene_fishing")
-  expect_equal(names(output), c("results", "fished_genes", 
-                                "CFR_cutoff", "bait", "parameters"))
-  # check all genes are in the output
-  expect_equal(length(intersect(rownames(X), output$results$gene_id)), nrow(X))
+  expect_s3_class(output, "gene_fishing_probe")
+  expect_equal(names(output), c("best_bait", "bait_sets", "bait_info", "X",  
+                                "method", "type", "rand_perct"))
   # check that we are returning a plot
   expect_s3_class(plot(output), c("gg", "ggplot"))
   

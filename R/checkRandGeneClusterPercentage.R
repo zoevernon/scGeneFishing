@@ -63,7 +63,7 @@ checkRandGeneClusterPercentage <- function(results, i, n_rounds, alpha, k = 2){
         
         # all genes in cluster with majority of bait
         f1 <- cluster_vec == value
-        
+        f1 <- f1[!names(f1) %in% bait_genes]
         sum(f1) / length(f1)
       },
       error = function(err) {
