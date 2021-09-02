@@ -10,6 +10,8 @@ getUMAPCoordinates(A, n_eigen_vectors = 0, n_neighbors = 15)
 \item{A}{similarity matrix}
 
 \item{n_eigen_vectors}{number of eigen vectors to save for clustering}
+
+\item{n_neighbors}{number of neighbors}
 }
 \value{
 \code{coordinate_matrix} - matrix of UMAP coordinates for each gene.

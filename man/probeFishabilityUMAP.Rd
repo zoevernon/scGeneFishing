@@ -19,6 +19,10 @@ probeFishabilityUMAP(
 \item{exp_mat}{matrix of gene expression where the rows are genes and the
 columns are samples (cells or individuals).}
 
+\item{potential_bait}{set of genes for which to check if there is a
+subset that can be used as bait.  These genes should be a subset of the
+rownames of \code{exp_mat}.}
+
 \item{n_rounds}{number of random samples to be used in assessing fishability
 of a set of genes.}
 
@@ -36,10 +40,6 @@ of genes.}
 \item{min_genes}{minimum size that the bait set can be.}
 
 \item{method}{similarity metric}
-
-\item{potential_bait_genes}{set of genes for which to check if there is a
-subset that can be used as bait.  These genes should be a subset of the
-rownames of \code{exp_mat}.}
 }
 \description{
 Function to find a set of genes that can be used as bait in geneFishing from

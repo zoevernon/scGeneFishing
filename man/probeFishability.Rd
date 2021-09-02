@@ -22,6 +22,10 @@ probeFishability(
 \item{X}{matrix of gene expression where the rows are genes and the
 columns are samples (cells or individuals).}
 
+\item{potential_bait}{set of genes for which to check if there is a
+subset that can be used as bait.  These genes should be a subset of the
+rownames of \code{X}.}
+
 \item{n_rounds}{number of random samples to be used in assessing fishability
 of a set of genes.  The default is 100.}
 
@@ -39,6 +43,8 @@ of genes.}
 \item{min_genes}{minimum size that the bait set can be.  The default is set to
 5.}
 
+\item{n_neighbors}{number of neighbors for UMAP}
+
 \item{umap}{indicator of whether the computation should be done using UMAP.
 The default is FALSE.  When umap = TRUE the computation will take longer.
 However, if you cannot find good bait with umap = FALSE, you may want to try
@@ -50,10 +56,6 @@ with umap = TRUE.}
 type of correlation to use. Cosine similarity also a possibility.
 Defaults to spearman.  This must be one of "spearman", "pearson", "cosine",
 "euclidean",  "maximum", "manhattan", "canberra", "binary", or "minkowski".}
-
-\item{potential_bait_genes}{set of genes for which to check if there is a
-subset that can be used as bait.  These genes should be a subset of the
-rownames of \code{X}.}
 }
 \value{
 List with the following components:

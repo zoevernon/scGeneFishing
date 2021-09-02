@@ -17,6 +17,10 @@ plotSpectralCoordinates(
 \item{X}{matrix of gene expression where the rows are genes and the
 columns are samples (cells or individuals).}
 
+\item{potential_bait}{set of genes for which to check if there is a
+subset that can be used as bait.  These genes should be a subset of the
+rownames of \code{X}.}
+
 \item{alpha}{controls number of random genes that are sampled in each round
 of fishing.  It will sample \code{alpha} times the number of genes in
 \code{bait_genes}.  The default is 5.  The stronger the bait separates from
@@ -27,10 +31,6 @@ The default is TRUE.  When umap = FALSE it will use spectral coordinates.}
 
 \item{method}{input to \code{cor()} function telling what type of correlation
 to use. Defaults to spearman.}
-
-\item{potential_bait_genes}{set of genes for which to check if there is a
-subset that can be used as bait.  These genes should be a subset of the
-rownames of \code{X}.}
 
 \item{k}{number of eigen vectors to use in UMAP.}
 }

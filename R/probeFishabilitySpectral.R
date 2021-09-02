@@ -6,7 +6,7 @@
 #' 
 #' @param exp_mat matrix of gene expression where the rows are genes and the 
 #' columns are samples (cells or individuals). 
-#' @param potential_bait_genes set of genes for which to check if there is a 
+#' @param potential_bait set of genes for which to check if there is a 
 #' subset that can be used as bait.  These genes should be a subset of the 
 #' rownames of \code{exp_mat}. 
 #' @param n_rounds number of random samples to be used in assessing fishability

@@ -4,6 +4,7 @@
 #'
 #' @param A similarity matrix 
 #' @param n_eigen_vectors number of eigen vectors to save for clustering
+#' @param n_neighbors number of neighbors
 #' 
 #' @return \code{coordinate_matrix} - matrix of UMAP coordinates for each gene.
 #' 

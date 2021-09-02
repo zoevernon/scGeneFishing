@@ -9,6 +9,7 @@
 #' right part. This algorithm is based on non-parametric MLE.
 #' 
 #' @param X CFR vector from GeneFishing results from\code{geneFishing()}.
+#' @param bait_indices index of bait
 #' @param unit searching unit for grid search, defaults to 1 / number of fishing
 #' rounds
 #' @param left_lb lower bound of left peak of distribution, defaults to minimum

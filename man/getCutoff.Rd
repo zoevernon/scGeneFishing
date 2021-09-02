@@ -22,6 +22,8 @@ getCutoff(
 \arguments{
 \item{X}{CFR vector from GeneFishing results from\code{geneFishing()}.}
 
+\item{bait_indices}{index of bait}
+
 \item{unit}{searching unit for grid search, defaults to 1 / number of fishing
 rounds}
 
