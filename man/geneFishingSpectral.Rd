@@ -21,6 +21,8 @@ columns are samples (cells or individuals).}
 \item{bait_genes}{genes to use as bait to fish out similar genes from the
 \code{exp_mat}.  These genes should be a subset of the rownames of \code{exp_mat}.}
 
+\item{pool_genes}{rand genes to include}
+
 \item{alpha}{controls number of random genes that are sampled in each round
 of fishing.  It will sample \code{alpha} times the number of genes in
 \code{bait_genes}.  The default is 5.  The stronger the bait separates from
@@ -31,6 +33,8 @@ samples of random genes the larger \code{alpha} the algorithm can handle.}
 \item{k}{number of clusters to use in geneFishing.  The default is 2, however
 if you fished out too many genes with \code{k = 2} it can help to increase to
 \code{k = 3}.}
+
+\item{method}{similarity method}
 }
 \description{
 Function to do spectral version of geneFishing

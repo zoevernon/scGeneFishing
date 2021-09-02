@@ -35,6 +35,8 @@ of genes.}
 
 \item{min_genes}{minimum size that the bait set can be.}
 
+\item{method}{similarity metric}
+
 \item{potential_bait_genes}{set of genes for which to check if there is a
 subset that can be used as bait.  These genes should be a subset of the
 rownames of \code{exp_mat}.}

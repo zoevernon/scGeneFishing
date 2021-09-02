@@ -20,7 +20,9 @@
 #' medoid of the potential bait genes and a set of randomly sampled genes. The
 #' average of these tightness measures are taken over \code{n_rounds} random samples
 #' of genes.  
-#' @param min_genes minimum size that the bait set can be.  
+#' @param min_genes minimum size that the bait set can be. 
+#' @param method similarity metric
+#' 
 
 probeFishabilitySpectral <- function(exp_mat, potential_bait, n_rounds, alpha, 
                                          min_tightness, min_genes, method){

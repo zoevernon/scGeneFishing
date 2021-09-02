@@ -14,6 +14,21 @@ performSplitSpectral(
   method
 )
 }
+\arguments{
+\item{potential_bait}{potential bait genes}
+
+\item{exp_mat}{expression matrix}
+
+\item{n_rounds}{number of rounds of sampling}
+
+\item{round}{round index}
+
+\item{alpha}{number of genes to sample}
+
+\item{min_genes}{minimum number of genes}
+
+\item{method}{similarity method}
+}
 \description{
 Internal function for probing fishability of a set of genes to split up
 potential bait set by doing clustering with k = 2.

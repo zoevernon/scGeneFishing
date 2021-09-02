@@ -4,6 +4,15 @@
 #' Internal function for probing fishability of a set of genes to split up 
 #' potential bait set by doing clustering with k = 2.
 #' 
+#' @param potential_bait potential bait genes
+#' @param exp_mat expression matrix
+#' @param n_rounds number of rounds of sampling
+#' @param round round index
+#' @param alpha number of genes to sample
+#' @param n_neighbors number of neighbors for UMAP
+#' @param min_genes minimum number of genes
+#' @param method similarity method
+#' 
 performSplitUMAP <- function(potential_bait, exp_mat, n_rounds, round, alpha,
                                  n_neighbors, min_genes, method) {
   if(method == "cosine"){

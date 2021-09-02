@@ -4,6 +4,9 @@
 #' Internal function to do spectral clustering for \code{geneFishing} and 
 #' \code{probeFishability}.
 #'
+#' @param cor_mat correlation / similarity matrix
+#' @param k number of clusters
+#'
 
 spectralClustering <- function(cor_mat, k){
   # get coordinates for spectral clustering

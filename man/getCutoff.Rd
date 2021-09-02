@@ -43,6 +43,10 @@ left_ub and right_lb}
 \item{eps_l}{the gap between the left part and the middle part.}
 
 \item{eps_r}{the gap between the right part and the middle part}
+
+\item{topK}{parameter for finding cutoff}
+
+\item{max_pct}{pct of genes if clustered with bait 100\% we use as cutoff}
 }
 \value{
 CFR cutoff for labeling fished genes

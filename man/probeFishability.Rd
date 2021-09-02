@@ -39,14 +39,17 @@ of genes.}
 \item{min_genes}{minimum size that the bait set can be.  The default is set to
 5.}
 
-\item{umap}{indicator of whether to do UMAP on spectral coordinates for
-clustering.  Default is TRUE, which is recommended for single cell data, despite
-a reduction in speed.}
+\item{umap}{indicator of whether the computation should be done using UMAP.
+The default is FALSE.  When umap = TRUE the computation will take longer.
+However, if you cannot find good bait with umap = FALSE, you may want to try
+with umap = TRUE.}
 
 \item{ncores}{number of cores to do parallel computation on if parallel = TRUE.}
 
-\item{method}{input to \code{cor()} function telling what type of correlation
-to use. Defaults to spearman.}
+\item{method}{input to \code{cor()} or \code{dist()} functions telling what
+type of correlation to use. Cosine similarity also a possibility.
+Defaults to spearman.  This must be one of "spearman", "pearson", "cosine",
+"euclidean",  "maximum", "manhattan", "canberra", "binary", or "minkowski".}
 
 \item{potential_bait_genes}{set of genes for which to check if there is a
 subset that can be used as bait.  These genes should be a subset of the

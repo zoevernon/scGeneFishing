@@ -4,6 +4,14 @@
 #' Internal function for probing fishability of a set of genes to split up 
 #' potential bait set by doing clustering with k = 2.
 #' 
+#' @param potential_bait potential bait genes
+#' @param exp_mat expression matrix
+#' @param n_rounds number of rounds of sampling
+#' @param round round index
+#' @param alpha number of genes to sample
+#' @param min_genes minimum number of genes
+#' @param method similarity method
+#' 
 performSplitSpectral <- function(potential_bait, exp_mat, n_rounds, round, 
                                      alpha, min_genes, method) {
   using_dist <- ifelse(method %in% c("euclidean", "maximum", "manhattan", 

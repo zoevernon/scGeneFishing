@@ -6,6 +6,17 @@
 \usage{
 checkRandGeneClusterPercentage(results, i, n_rounds, alpha, k = 2)
 }
+\arguments{
+\item{results}{results from probeFishability}
+
+\item{i}{index}
+
+\item{n_rounds}{number of rounds of random sampling}
+
+\item{alpha}{number of genes to sample}
+
+\item{k}{number of clusters}
+}
 \description{
 Function to check that not too many random genes are clustering with the
 discovered bait.  Will return a warning if that is the case.

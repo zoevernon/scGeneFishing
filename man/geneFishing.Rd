@@ -52,7 +52,7 @@ of genes.}
 of a set of genes.  The default is 100.  .}
 
 \item{umap}{indicator of whether the computation should be done using UMAP.
-The default is TRUE.  When umap = FALSE it will use spectral coordinates.}
+The default is FALSE.  When umap = TRUE the computation will take longer.}
 
 \item{ncores}{number of cores to do parallel computation on if parallel = TRUE.}
 
@@ -61,8 +61,10 @@ The default is TRUE.  When umap = FALSE it will use spectral coordinates.}
 \item{bait_index}{index of \code{bait_sets} list from \code{probeFishability()}, to
 use.  Defaults to 1, which corresponds to the tightest bait.}
 
-\item{method}{input to \code{cor()} function telling what type of correlation
-to use. Defaults to spearman.}
+\item{method}{input to \code{cor()} or \code{dist()} functions telling what
+type of correlation to use. Cosine similarity also a possibility.
+Defaults to spearman.  This must be one of "spearman", "pearson", "cosine",
+"euclidean",  "maximum", "manhattan", "canberra", "binary", or "minkowski".}
 }
 \value{
 A list with the following items

@@ -23,6 +23,8 @@
 #' left_ub and right_lb
 #' @param eps_l the gap between the left part and the middle part.
 #' @param eps_r the gap between the right part and the middle part
+#' @param topK parameter for finding cutoff
+#' @param max_pct pct of genes if clustered with bait 100% we use as cutoff
 #' 
 #' @return CFR cutoff for labeling fished genes
 #' 

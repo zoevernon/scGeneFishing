@@ -3,6 +3,10 @@
 #' 
 #' Internal function to do UMAP clustering for \code{geneFishing} and 
 #' \code{probeFishability}.
+#' 
+#' @param cor_mat correlation / similarity matrix
+#' @param k number of eigen vectors
+#' @param n_neighbors number of neighbors for UMAP
 #'
 
 UMAPClustering <- function(cor_mat, k, n_neighbors){

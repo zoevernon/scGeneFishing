@@ -27,8 +27,10 @@
 #' However, if you cannot find good bait with umap = FALSE, you may want to try
 #' with umap = TRUE.
 #' @param ncores number of cores to do parallel computation on if parallel = TRUE.
-#' @param method input to \code{cor()} function telling what type of correlation
-#' to use. Defaults to spearman. 
+#' @param method input to \code{cor()} or \code{dist()} functions telling what 
+#' type of correlation to use. Cosine similarity also a possibility. 
+#' Defaults to spearman.  This must be one of "spearman", "pearson", "cosine",
+#' "euclidean",  "maximum", "manhattan", "canberra", "binary", or "minkowski". 
 #' 
 #' @return List with the following components:
 #' \itemize{

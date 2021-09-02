@@ -13,6 +13,19 @@ computeAvgDBIndexDist(
   n_rounds = 50
 )
 }
+\arguments{
+\item{bait_genes}{bait or potential bait}
+
+\item{exp_mat}{expression matrix}
+
+\item{method}{similarity metric}
+
+\item{k}{clusters}
+
+\item{alpha}{number of genes to sample}
+
+\item{n_rounds}{number of rounds of sampling}
+}
 \description{
 Internal function to compute tightness of gene set when probing for fishability
 }

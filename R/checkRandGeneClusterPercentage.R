@@ -4,6 +4,11 @@
 #' Function to check that not too many random genes are clustering with the 
 #' discovered bait.  Will return a warning if that is the case.
 #' 
+#' @param results results from probeFishability
+#' @param i index
+#' @param n_rounds number of rounds of random sampling
+#' @param alpha number of genes to sample
+#' @param k number of clusters
 
 checkRandGeneClusterPercentage <- function(results, i, n_rounds, alpha, k = 2){
   # make sure the bait genes are represented 

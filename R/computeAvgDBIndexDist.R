@@ -3,6 +3,13 @@
 #' 
 #' Internal function to compute tightness of gene set when probing for fishability
 #' 
+#' @param bait_genes bait or potential bait
+#' @param exp_mat expression matrix
+#' @param method similarity metric
+#' @param k clusters
+#' @param alpha number of genes to sample
+#' @param n_rounds number of rounds of sampling
+#' 
 computeAvgDBIndexDist <- function(bait_genes, exp_mat, method, 
                                     k = 2, alpha = 5, n_rounds = 50){
   

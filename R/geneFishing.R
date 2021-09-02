@@ -32,8 +32,10 @@
 #' @param min_bait_genes minimum number of genes for bait set to be viable. 
 #' @param bait_index index of \code{bait_sets} list from \code{probeFishability()}, to 
 #' use.  Defaults to 1, which corresponds to the tightest bait.
-#' @param method input to \code{cor()} function telling what type of correlation
-#' to use. Defaults to spearman. 
+#' @param method input to \code{cor()} or \code{dist()} functions telling what 
+#' type of correlation to use. Cosine similarity also a possibility. 
+#' Defaults to spearman.  This must be one of "spearman", "pearson", "cosine",
+#' "euclidean",  "maximum", "manhattan", "canberra", "binary", or "minkowski". 
 #' 
 #' @return A list with the following items 
 #' \itemize{

@@ -3,6 +3,15 @@
 #' 
 #' Helper function for \code{getCutoff}.
 #' 
+#' @param X CFR vector
+#' @param c0 from getCutoff
+#' @param c1 from getCutoff
+#' @param alpha0 from getCutoff
+#' @param alpha1 from getCutoff
+#' @param g0 from getCutoff
+#' @param g1 from getCutoff
+#' @param ... additional arguments
+#' 
 EUILogLikelihood <- function(X, c0, c1, alpha0, alpha1, g0, g1, ...) {
   X_list <- list(...)
   n_X <- X_list$n_X

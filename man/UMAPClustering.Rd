@@ -6,6 +6,13 @@
 \usage{
 UMAPClustering(cor_mat, k, n_neighbors)
 }
+\arguments{
+\item{cor_mat}{correlation / similarity matrix}
+
+\item{k}{number of eigen vectors}
+
+\item{n_neighbors}{number of neighbors for UMAP}
+}
 \description{
 Internal function to do UMAP clustering for \code{geneFishing} and
 \code{probeFishability}.

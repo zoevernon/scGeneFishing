@@ -6,6 +6,11 @@
 \usage{
 spectralClustering(cor_mat, k)
 }
+\arguments{
+\item{cor_mat}{correlation / similarity matrix}
+
+\item{k}{number of clusters}
+}
 \description{
 Internal function to do spectral clustering for \code{geneFishing} and
 \code{probeFishability}.
