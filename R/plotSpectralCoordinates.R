@@ -16,7 +16,6 @@
 #' samples of random genes the larger \code{alpha} the algorithm can handle.
 #' @param umap indicator of whether the computation should be done using UMAP.
 #' The default is TRUE.  When umap = FALSE it will use spectral coordinates. 
-#' @param k number of eigen vectors to use in UMAP.
 #' @param method input to \code{cor()} function telling what type of correlation
 #' to use. Defaults to spearman. 
 #' 

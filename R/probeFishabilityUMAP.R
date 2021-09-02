@@ -21,6 +21,7 @@
 #' average of these tightness measures are taken over \code{n_rounds} random samples
 #' of genes.  
 #' @param min_genes minimum size that the bait set can be. 
+#' @param n_neighbors number of neighbors for UMAP
 #' @param method similarity metric
 #'  
 probeFishabilityUMAP <- function(exp_mat, potential_bait, n_rounds, alpha, 

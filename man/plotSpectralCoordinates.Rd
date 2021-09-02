@@ -31,8 +31,6 @@ The default is TRUE.  When umap = FALSE it will use spectral coordinates.}
 
 \item{method}{input to \code{cor()} function telling what type of correlation
 to use. Defaults to spearman.}
-
-\item{k}{number of eigen vectors to use in UMAP.}
 }
 \value{
 Plot of gene projection.

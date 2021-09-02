@@ -39,6 +39,8 @@ of genes.}
 
 \item{min_genes}{minimum size that the bait set can be.}
 
+\item{n_neighbors}{number of neighbors for UMAP}
+
 \item{method}{similarity metric}
 }
 \description{
